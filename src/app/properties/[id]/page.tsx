@@ -5,7 +5,7 @@ import { PropertyDetailsSkeleton } from '@/components/ui/LoadingComponents';
 import { ErrorMessage, NotFoundError } from '@/components/ui/ErrorComponents';
 import { Property } from '@/types/property';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
 interface PropertyDetailsContentProps {
   propertyId: string;
@@ -322,8 +322,8 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
 };
 
 const PropertySinglePageNew = () => {
-  const searchParams = useSearchParams();
-  const propertyId = searchParams.get('id');
+  const params = useParams();
+  const propertyId = params.id as string;
 
   if (!propertyId) {
     return (
