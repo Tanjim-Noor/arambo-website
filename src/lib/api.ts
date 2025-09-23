@@ -170,31 +170,3 @@ export const handleApiError = (error: unknown): string => {
   
   return 'An unexpected error occurred.';
 };
-
-// Utility to convert legacy property format to new format
-export const convertLegacyProperty = (legacyProperty: Record<string, unknown>): Partial<Property> => {
-  return {
-    id: String(legacyProperty.id || ''),
-    propertyName: String(legacyProperty.type || ''),
-    propertyType: (String(legacyProperty.type || 'apartment')).toLowerCase() as PropertyType,
-    location: String(legacyProperty.location || ''),
-    bedrooms: Number(legacyProperty.beds) || 0,
-    bathroom: Number(legacyProperty.baths) || 0,
-    size: Number(legacyProperty.sqft) || 0,
-    rent: parseInt(String(legacyProperty.price || '0').replace(/[^0-9]/g, '') || '0'),
-    coverImage: String(legacyProperty.image || ''),
-    isConfirmed: Boolean(legacyProperty.isVerified),
-    category: Boolean(legacyProperty.forSale) ? 'sale' : 'rent',
-    // Default required fields
-    name: '',
-    email: '',
-    phone: '',
-    baranda: false,
-    firstOwner: false,
-    lift: false,
-    paperworkUpdated: false,
-    onLoan: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-};

@@ -25,7 +25,7 @@ export type InventoryStatus =
 
 export type TenantType = 'Family' | 'Bachelor' | 'Office' | 'Commercial' | 'Any';
 
-export type PropertyCategory = 'residential' | 'commercial' | 'industrial' | 'mixed';
+export type PropertyCategory = 'residential' | 'commercial';
 
 export type FurnishingStatus = 'Furnished' | 'Semi-Furnished' | 'Non-Furnished';
 
@@ -41,6 +41,7 @@ export interface Property {
   email: string;                   // Contact email
   phone: string;                   // Contact phone
   propertyName: string;            // Property title
+  propertyType: string;     // Type of property
   propertyCategory: PropertyCategory;      // Residential, Commercial, etc.
   size: number;                    // Size in square feet
   location: string;                // Property location

@@ -15,7 +15,7 @@ const ResidentialPage = () => {
   const [filters, setFilters] = useState<PropertyFilters>({
     page: 1,
     limit: 10,
-    propertyCategory: 'Residential'
+    //propertyCategory: 'residential'
   });
   
   const { 
@@ -144,7 +144,7 @@ const ResidentialPage = () => {
               setFilters({
                 page: 1,
                 limit: 10,
-                propertyCategory: 'Residential'
+                propertyCategory: 'residential'
               });
             }}
           />
