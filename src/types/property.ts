@@ -25,7 +25,7 @@ export type InventoryStatus =
 
 export type TenantType = 'Family' | 'Bachelor' | 'Office' | 'Commercial' | 'Any';
 
-export type PropertyCategory = 'Residential' | 'Commercial' | 'Industrial' | 'Mixed';
+export type PropertyCategory = 'residential' | 'commercial' | 'industrial' | 'mixed';
 
 export type FurnishingStatus = 'Furnished' | 'Semi-Furnished' | 'Non-Furnished';
 
@@ -41,7 +41,7 @@ export interface Property {
   email: string;                   // Contact email
   phone: string;                   // Contact phone
   propertyName: string;            // Property title
-  propertyType: PropertyType;      // apartment, house, villa, etc.
+  propertyCategory: PropertyCategory;      // Residential, Commercial, etc.
   size: number;                    // Size in square feet
   location: string;                // Property location
   bedrooms: number;                // Number of bedrooms
@@ -63,7 +63,6 @@ export interface Property {
   listingId?: string;            // Listing identifier
   inventoryStatus?: InventoryStatus;
   tenantType?: TenantType;
-  propertyCategory?: PropertyCategory;
   furnishingStatus?: FurnishingStatus;
   availableFrom?: string;        // ISO date string
   floor?: number;                // Floor number
@@ -86,17 +85,17 @@ export interface PropertyFormData {
   email: string;
   phone: string;
   propertyName: string;
-  propertyType: string; // Changed to string to match Form.tsx
-  size: string; // Changed to string to match Form.tsx
+  propertyCategory: string; 
+  size: string; 
   location: string;
-  bedrooms: string; // Changed to string to match Form.tsx
+  bedrooms: string; 
   bathroom: string; 
   baranda: string; 
   category: string; 
-  notes: string; // Changed from optional to required to match Form.tsx
-  firstOwner: string; // Changed to string to match Form.tsx (yes/no)
-  paperworkUpdated: string; // Changed to string to match Form.tsx (yes/no)
-  onLoan: string; // Changed to string to match Form.tsx (yes/no)
+  notes: string; 
+  firstOwner: string; 
+  paperworkUpdated: string; 
+  onLoan: string; 
   
   // Optional fields - keeping these for API flexibility when editing/creating properties
   lift?: boolean;
@@ -107,7 +106,6 @@ export interface PropertyFormData {
   listingId?: string;
   inventoryStatus?: InventoryStatus;
   tenantType?: TenantType;
-  propertyCategory?: PropertyCategory;
   furnishingStatus?: FurnishingStatus;
   availableFrom?: string;
   floor?: number;
@@ -129,7 +127,7 @@ export interface PropertyAPIPayload {
   email: string;
   phone: string;
   propertyName: string;
-  propertyType: string;
+  propertyCategory: PropertyCategory;
   size: number;
   location: string;
   bedrooms: number;
@@ -150,7 +148,6 @@ export interface PropertyAPIPayload {
   listingId?: string;
   inventoryStatus?: InventoryStatus;
   tenantType?: TenantType;
-  propertyCategory?: PropertyCategory;
   furnishingStatus?: FurnishingStatus;
   availableFrom?: string;
   floor?: number;

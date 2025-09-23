@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowRightLong } from "@fortawesome/free-solid-svg-icons"
 import { useCreateProperty } from '@/hooks/useProperties'
-import { PropertyFormData } from '@/types/property'
+import { PropertyFormData, PropertyCategory } from '@/types/property'
 import { LoadingSpinner } from '@/components/ui/LoadingComponents'
 import { ErrorMessage } from '@/components/ui/ErrorComponents'
 
@@ -13,7 +13,7 @@ interface PropertyAPIPayload {
     email: string;
     phone: string;
     propertyName: string;
-    propertyType: string;
+    propertyCategory: PropertyCategory;
     size: number;
     location: string;
     bedrooms: number;
@@ -32,7 +32,7 @@ const PropertyFormNew = () => {
         email: '',
         phone: '',
         propertyName: '',
-        propertyType: '',
+        propertyCategory: '',
         size: '',
         location: '',
         bedrooms: '',
@@ -56,7 +56,7 @@ const PropertyFormNew = () => {
         const { name, value } = e.target
         
         // For phone, size, bedrooms, baranda fields, allow only numbers
-        if (name === 'phone' || name === 'size' || name === 'bedrooms' || name === 'baranda') {
+        if (name === 'phone' || name === 'size' || name === 'bedrooms' || name === 'baranda' || name === 'bathroom') {
             const numericValue = value.replace(/\D/g, '')
             setFormData((prev) => ({
                 ...prev,
@@ -97,7 +97,7 @@ const PropertyFormNew = () => {
         if (!data.email?.trim()) errors.push('Email is required');
         if (!data.phone?.trim()) errors.push('Phone is required');
         if (!data.propertyName?.trim()) errors.push('Property name is required');
-        if (!data.propertyType?.trim()) errors.push('Property type is required');
+        if (!data.propertyCategory?.trim()) errors.push('Property category is required');
         if (!data.location?.trim()) errors.push('Location is required');
         if (!data.category?.trim()) errors.push('Category is required');
 
@@ -185,7 +185,7 @@ const PropertyFormNew = () => {
             email: data.email!.trim(),
             phone: data.phone!.trim(),
             propertyName: data.propertyName!.trim(),
-            propertyType: data.propertyType!.trim(),
+            propertyCategory: data.propertyCategory!.trim() as PropertyCategory,
             size: size!,
             location: data.location!.trim(),
             bedrooms: bedrooms!,
@@ -226,7 +226,7 @@ const PropertyFormNew = () => {
                         email: '',
                         phone: '',
                         propertyName: '',
-                        propertyType: '',
+                        propertyCategory: '',
                         size: '',
                         location: '',
                         bedrooms: '',
@@ -347,16 +347,16 @@ const PropertyFormNew = () => {
                                 />
                             </div>
                             <div className='space-y-3'>
-                                <label className='label-18' htmlFor="propertyType">Property Type</label><br />
+                                <label className='label-18' htmlFor="propertyCategory">Property Category</label><br />
                                 <select
-                                    name='propertyType'
-                                    id='propertyType'
+                                    name='propertyCategory'
+                                    id='propertyCategory'
                                     className='px-5 py-3 w-full placeholder:text-Arambo-Text bg-Arambo-Background rounded-lg'
                                     required
-                                    value={formData.propertyType || ''}
+                                    value={formData.propertyCategory || ''}
                                     onChange={handleChange}
                                 >
-                                    <option value="" className='text-Arambo-Text' disabled>Select Type of Property</option>
+                                    <option value="" className='text-Arambo-Text' disabled>Select Category of Property</option>
                                     <option value="residential">Residential</option>
                                     <option value="commercial">Commercial</option>
                                 </select>
