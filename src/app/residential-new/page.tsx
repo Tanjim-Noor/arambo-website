@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import ActionButtonContainer from "@/components/ActionButtonContainer";
 import { PropertyCard } from "../../components/PropertyCardSimple";
 import { PropertyFilter } from "@/components/PropertyFIlter";
@@ -11,14 +11,10 @@ import { PropertyFilters } from "@/types/property";
 import { PropertyListSkeleton } from "@/components/ui/LoadingComponents";
 import { ErrorMessage, EmptyState } from "@/components/ui/ErrorComponents";
 import { useUrlParams } from "@/hooks/useUrlParams";
-import { useDebounce } from "@/hooks/useDebounce";
 
 const ResidentialPage = () => {
-  const { currentFilters, updateFilters } = useUrlParams();
-  const [heroSearchValue, setHeroSearchValue] = useState(currentFilters.location || "");
-  
-  // Debounce hero search input
-  const debouncedHeroSearch = useDebounce(heroSearchValue, 500);
+  const { currentFilters } = useUrlParams();
+  const [heroSearchValue, setHeroSearchValue] = useState("");
   
   const [filters, setFilters] = useState<PropertyFilters>({
     page: 1,
@@ -52,13 +48,6 @@ const ResidentialPage = () => {
     }));
   }, [currentFilters]);
 
-  // Update hero search when debounced value changes
-  useEffect(() => {
-    if (debouncedHeroSearch !== currentFilters.location) {
-      updateFilters({ location: debouncedHeroSearch || undefined }, true);
-    }
-  }, [debouncedHeroSearch, currentFilters.location, updateFilters]);
-
   // Intersection Observer for infinite scroll
   useEffect(() => {
     const currentRef = loaderRef.current;
@@ -87,16 +76,7 @@ const ResidentialPage = () => {
     };
   }, [isValidating, hasMore, loadMore]);
 
-  // Handle filter changes from PropertyFilter component - memoized to prevent infinite re-renders
-  const handleFilterChange = useCallback((newFilters: Partial<PropertyFilters>) => {
-    setFilters(prev => ({
-      ...prev,
-      ...newFilters,
-      page: 1 // Reset to first page when filters change
-    }));
-  }, []); // Empty dependency array since we only use setFilters
-
-  // Handle hero search input changes
+  // Handle hero search input changes (no functionality, just visual)
   const handleHeroSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = e.target.value;
     setHeroSearchValue(searchValue);
@@ -178,8 +158,6 @@ const ResidentialPage = () => {
                         propertyCategory: 'Residential'
                       });
                       setHeroSearchValue("");
-                      // Clear URL params as well
-                      window.history.replaceState({}, '', window.location.pathname);
                     }}
                   />
                 )}

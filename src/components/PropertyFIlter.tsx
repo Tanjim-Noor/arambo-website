@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { Slider } from "@mui/material";
 import FormSelect from "./FormSelect";
-import { useDebounce, useDebouncedCallback } from "@/hooks/useDebounce";
+import { useDebouncedCallback } from "@/hooks/useDebounce";
 import { useUrlParams } from "@/hooks/useUrlParams";
 import { PropertyFilters } from "@/types/property";
 
@@ -19,7 +19,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
   
   // Initialize local state only once
   const [localForm, setLocalForm] = useState(() => ({
-    location: currentFilters.location || "",
+    location: "",
     minRent: currentFilters.minRent || 10000,
     maxRent: currentFilters.maxRent || 32000,
     categories: tenantTypes,
@@ -35,20 +35,6 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
     currentFilters.minRent || 10000, 
     currentFilters.maxRent || 32000
   ]);
-
-  // Debounce the location search with 500ms delay
-  const debouncedLocation = useDebounce(localForm.location, 500);
-
-  // Memoize filter updates to prevent infinite loops
-  const updateLocationFilter = useCallback(() => {
-    if (debouncedLocation !== currentFilters.location) {
-      const filters: Partial<PropertyFilters> = {
-        location: debouncedLocation || undefined,
-      };
-      updateFilters(filters, true);
-      onFiltersChange?.(filters as PropertyFilters);
-    }
-  }, [debouncedLocation, currentFilters.location, updateFilters, onFiltersChange]);
 
   // Create a debounced version of updateOtherFilters
   const debouncedUpdateOtherFilters = useDebouncedCallback(() => {
@@ -81,11 +67,6 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
     }
   }, 300);
 
-  // Update location filter when debounced value changes
-  useEffect(() => {
-    updateLocationFilter();
-  }, [updateLocationFilter]);
-
   // Trigger debounced update when other filters change
   useEffect(() => {
     debouncedUpdateOtherFilters();
@@ -95,7 +76,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
   useEffect(() => {
     setLocalForm(prev => {
       const newFormData = {
-        location: currentFilters.location || "",
+        location: "",
         minRent: currentFilters.minRent || 10000,
         maxRent: currentFilters.maxRent || 32000,
         categories: tenantTypes,
@@ -108,21 +89,20 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       };
 
       // Only update if there's actually a meaningful change
-      const hasLocationChange = prev.location !== newFormData.location;
       const hasRentChange = prev.minRent !== newFormData.minRent || prev.maxRent !== newFormData.maxRent;
       const hasTypeChange = prev.propertyType !== newFormData.propertyType;
       const hasAreaChange = prev.area !== newFormData.area;
       const hasBedsChange = prev.beds !== newFormData.beds;
       const hasCategoriesChange = JSON.stringify(prev.categories) !== JSON.stringify(newFormData.categories);
 
-      if (hasLocationChange || hasRentChange || hasTypeChange || hasAreaChange || hasBedsChange || hasCategoriesChange) {
+      if (hasRentChange || hasTypeChange || hasAreaChange || hasBedsChange || hasCategoriesChange) {
         setSliderValue([newFormData.minRent, newFormData.maxRent]);
         return newFormData;
       }
       
       return prev;
     });
-  }, [currentFilters.location, currentFilters.minRent, currentFilters.maxRent, currentFilters.propertyType, currentFilters.area, currentFilters.bedrooms, tenantTypes]);
+  }, [currentFilters.minRent, currentFilters.maxRent, currentFilters.propertyType, currentFilters.area, currentFilters.bedrooms, tenantTypes]);
 
   // Generic handleChange for text/select inputs
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
