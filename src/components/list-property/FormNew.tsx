@@ -357,8 +357,8 @@ const PropertyFormNew = () => {
                                     onChange={handleChange}
                                 >
                                     <option value="" className='text-Arambo-Text' disabled>Select Category of Property</option>
-                                    <option value="residential">Residential</option>
-                                    <option value="commercial">Commercial</option>
+                                    <option value="Residential">Residential</option>
+                                    <option value="Commercial">Commercial</option>
                                 </select>
                             </div>
                             <div className='space-y-3'>
@@ -431,7 +431,7 @@ const PropertyFormNew = () => {
                                     <input
                                         type="radio"
                                         name="category"
-                                        value={"furnished"}
+                                        value={"Furnished"}
                                         id='furnished'
                                         placeholder='Your answer'
                                         className='h-full  placeholder:text-Arambo-Text bg-Arambo-Background rounded-lg'
@@ -445,7 +445,7 @@ const PropertyFormNew = () => {
                                     <input
                                         type="radio"
                                         name="category"
-                                        value={"semi-furnished"}
+                                        value={"Semi-Furnished"}
                                         id='semi-furnished'
                                         placeholder='Your answer'
                                         className='h-full  placeholder:text-Arambo-Text bg-Arambo-Background rounded-lg'
@@ -459,7 +459,7 @@ const PropertyFormNew = () => {
                                     <input
                                         type="radio"
                                         name="category"
-                                        value={"unfurnished"}
+                                        value={"Unfurnished"}
                                         id='unfurnished'
                                         placeholder='Your answer'
                                         className='h-full  placeholder:text-Arambo-Text bg-Arambo-Background rounded-lg'

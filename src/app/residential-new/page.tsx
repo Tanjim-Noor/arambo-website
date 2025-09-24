@@ -10,12 +10,17 @@ import { useProperties } from "@/hooks/useProperties";
 import { PropertyFilters } from "@/types/property";
 import { PropertyListSkeleton } from "@/components/ui/LoadingComponents";
 import { ErrorMessage, EmptyState } from "@/components/ui/ErrorComponents";
+import { useUrlParams } from "@/hooks/useUrlParams";
 
 const ResidentialPage = () => {
+  const { currentFilters } = useUrlParams();
+  const [heroSearchValue, setHeroSearchValue] = useState("");
+  
   const [filters, setFilters] = useState<PropertyFilters>({
     page: 1,
     limit: 10,
-    //propertyCategory: 'residential'
+    propertyCategory: 'Residential',
+    ...currentFilters
   });
   
   const { 
@@ -26,12 +31,22 @@ const ResidentialPage = () => {
     hasMore, 
     loadMore 
   } = useProperties(filters);
+  
   console.log("Properties:", properties);
   console.log("Error:", error);
-  console.log("isLoading:", isLoading);
-  console.log("isValidating:", isValidating);
-  console.log("hasMore:", hasMore);
+  console.log("Filters:", filters);
+  console.log("Current URL Filters:", currentFilters);
+  
   const loaderRef = useRef<HTMLDivElement | null>(null);
+
+  // Update filters when URL params change
+  useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      ...currentFilters,
+      page: 1, // Reset to first page when filters change
+    }));
+  }, [currentFilters]);
 
   // Intersection Observer for infinite scroll
   useEffect(() => {
@@ -61,13 +76,10 @@ const ResidentialPage = () => {
     };
   }, [isValidating, hasMore, loadMore]);
 
-  // Handle filter changes
-  const handleFilterChange = (newFilters: Partial<PropertyFilters>) => {
-    setFilters(prev => ({
-      ...prev,
-      ...newFilters,
-      page: 1 // Reset to first page when filters change
-    }));
+  // Handle hero search input changes (no functionality, just visual)
+  const handleHeroSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchValue = e.target.value;
+    setHeroSearchValue(searchValue);
   };
 
   return (
@@ -93,13 +105,9 @@ const ResidentialPage = () => {
               <input
                 type="text"
                 placeholder="Search by location..."
+                value={heroSearchValue}
+                onChange={handleHeroSearchChange}
                 className="flex-1 bg-transparent text-white placeholder-white/70 outline-none text-sm sm:text-base min-w-0"
-                onChange={(e) => {
-                  const searchValue = e.target.value;
-                  handleFilterChange({ 
-                    location: searchValue || undefined 
-                  });
-                }}
               />
             </div>
           </div>
@@ -147,8 +155,9 @@ const ResidentialPage = () => {
                       setFilters({
                         page: 1,
                         limit: 10,
-                        //propertyCategory: 'residential'
+                        propertyCategory: 'Residential'
                       });
+                      setHeroSearchValue("");
                     }}
                   />
                 )}

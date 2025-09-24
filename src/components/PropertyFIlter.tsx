@@ -1,50 +1,123 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { Slider } from "@mui/material";
 import FormSelect from "./FormSelect";
-
+import { useDebouncedCallback } from "@/hooks/useDebounce";
+import { useUrlParams } from "@/hooks/useUrlParams";
+import { PropertyFilters } from "@/types/property";
 
 interface PropertyFilterProps {
   CategoryOptions: string[];
+  onFiltersChange?: (filters: PropertyFilters) => void;
 }
 
-export function PropertyFilter({ CategoryOptions }: PropertyFilterProps) {
+export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFilterProps) {
   const CATEGORY_OPTIONS = CategoryOptions;
-  const [form, setForm] = useState({
+  const { currentFilters, updateFilters, tenantTypes, updateTenantTypes } = useUrlParams();
+  
+  // Initialize local state only once
+  const [localForm, setLocalForm] = useState(() => ({
     location: "",
-    minRent: 10000,
-    maxRent: 32000,
-    categories: [] as string[],
-    propertyType: "",
-    area: "",
-    beds: "",
+    minRent: currentFilters.minRent || 10000,
+    maxRent: currentFilters.maxRent || 32000,
+    categories: tenantTypes,
+    propertyType: currentFilters.propertyType || "",
+    area: currentFilters.area || "",
+    beds: currentFilters.bedrooms?.toString() || "",
     bathroom: "",
     aptType: "",
     bathroom2: "",
-  });
+  }));
 
-  const [sliderValue, setSliderValue] = useState<number[]>([form.minRent, form.maxRent]);
+  const [sliderValue, setSliderValue] = useState<number[]>(() => [
+    currentFilters.minRent || 10000, 
+    currentFilters.maxRent || 32000
+  ]);
+
+  // Create a debounced version of updateOtherFilters
+  const debouncedUpdateOtherFilters = useDebouncedCallback(() => {
+    const filters: Partial<PropertyFilters> = {
+      minRent: localForm.minRent !== 10000 ? localForm.minRent : undefined,
+      maxRent: localForm.maxRent !== 32000 ? localForm.maxRent : undefined,
+      propertyType: (localForm.propertyType as PropertyFilters['propertyType']) || undefined,
+      area: localForm.area || undefined,
+      bedrooms: localForm.beds ? parseInt(localForm.beds, 10) : undefined,
+    };
+    
+    // Check if there are actual changes to prevent unnecessary updates
+    const currentValues = {
+      minRent: currentFilters.minRent,
+      maxRent: currentFilters.maxRent,
+      propertyType: currentFilters.propertyType,
+      area: currentFilters.area,
+      bedrooms: currentFilters.bedrooms,
+    };
+
+    const hasChanges = Object.keys(filters).some(key => {
+      const newValue = filters[key as keyof typeof filters];
+      const oldValue = currentValues[key as keyof typeof currentValues];
+      return newValue !== oldValue;
+    });
+
+    if (hasChanges) {
+      updateFilters(filters, true);
+      onFiltersChange?.(filters as PropertyFilters);
+    }
+  }, 300);
+
+  // Trigger debounced update when other filters change
+  useEffect(() => {
+    debouncedUpdateOtherFilters();
+  }, [localForm.minRent, localForm.maxRent, localForm.propertyType, localForm.area, localForm.beds, debouncedUpdateOtherFilters]);
+
+  // Sync local form with URL params when they change externally (simplified logic)
+  useEffect(() => {
+    setLocalForm(prev => {
+      const newFormData = {
+        location: "",
+        minRent: currentFilters.minRent || 10000,
+        maxRent: currentFilters.maxRent || 32000,
+        categories: tenantTypes,
+        propertyType: currentFilters.propertyType || "",
+        area: currentFilters.area || "",
+        beds: currentFilters.bedrooms?.toString() || "",
+        bathroom: prev.bathroom,
+        aptType: prev.aptType,
+        bathroom2: prev.bathroom2,
+      };
+
+      // Only update if there's actually a meaningful change
+      const hasRentChange = prev.minRent !== newFormData.minRent || prev.maxRent !== newFormData.maxRent;
+      const hasTypeChange = prev.propertyType !== newFormData.propertyType;
+      const hasAreaChange = prev.area !== newFormData.area;
+      const hasBedsChange = prev.beds !== newFormData.beds;
+      const hasCategoriesChange = JSON.stringify(prev.categories) !== JSON.stringify(newFormData.categories);
+
+      if (hasRentChange || hasTypeChange || hasAreaChange || hasBedsChange || hasCategoriesChange) {
+        setSliderValue([newFormData.minRent, newFormData.maxRent]);
+        return newFormData;
+      }
+      
+      return prev;
+    });
+  }, [currentFilters.minRent, currentFilters.maxRent, currentFilters.propertyType, currentFilters.area, currentFilters.bedrooms, tenantTypes]);
 
   // Generic handleChange for text/select inputs
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({
+    setLocalForm((prev) => ({
       ...prev,
       [name]: value,
     }));
-    //console.log(form);
-
-    // ATTENTION!!!
-    // Axios request can be made here for filtering
   };
 
   // Handle slider change
   const handleSliderChange = (event: Event, newValue: number | number[]) => {
     if (Array.isArray(newValue)) {
       setSliderValue(newValue);
-      setForm((prev) => ({
+      setLocalForm((prev) => ({
         ...prev,
         minRent: newValue[0],
         maxRent: newValue[1],
@@ -52,16 +125,25 @@ export function PropertyFilter({ CategoryOptions }: PropertyFilterProps) {
     }
   };
 
+  // Handle category toggle with URL params
   const handleCategoryToggle = (category: string) => {
-    setForm((prev) => {
-      const isSelected = prev.categories.includes(category);
-      return {
-        ...prev,
-        categories: isSelected
-          ? prev.categories.filter((c) => c !== category)
-          : [...prev.categories, category],
-      };
-    });
+    const isSelected = localForm.categories.includes(category);
+    const newCategories = isSelected
+      ? localForm.categories.filter((c) => c !== category)
+      : [...localForm.categories, category];
+    
+    setLocalForm((prev) => ({
+      ...prev,
+      categories: newCategories,
+    }));
+    
+    // Update URL with new tenantTypes
+    updateTenantTypes(newCategories);
+    
+    // Notify parent component
+    onFiltersChange?.({
+      tenantType: newCategories.length === 1 ? newCategories[0] as PropertyFilters['tenantType'] : undefined
+    } as PropertyFilters);
   };
 
   return (
@@ -72,7 +154,7 @@ export function PropertyFilter({ CategoryOptions }: PropertyFilterProps) {
         <input
           type="text"
           name="location"
-          value={form.location}
+          value={localForm.location}
           onChange={handleChange}
           placeholder="Search by location..."
           className="flex-1 pl-2 bg-transparent text-Arambo-Black placeholder-Arambo-Text outline-none text-sm sm:text-base min-w-0"
@@ -89,7 +171,7 @@ export function PropertyFilter({ CategoryOptions }: PropertyFilterProps) {
             type="text"
             name="minRent"
             placeholder="Min"
-            value={form.minRent}
+            value={localForm.minRent}
             onChange={handleChange}
             className="w-20 py-2 px-4 rounded-lg bg-Arambo-Background text-Arambo-Black placeholder-Arambo-Text"
           />
@@ -97,7 +179,7 @@ export function PropertyFilter({ CategoryOptions }: PropertyFilterProps) {
             type="text"
             name="maxRent"
             placeholder="Max"
-            value={form.maxRent}
+            value={localForm.maxRent}
             onChange={handleChange}
             className="w-20 py-2 px-4 rounded-lg bg-Arambo-Background text-Arambo-Black placeholder-Arambo-Text"
           />
@@ -122,7 +204,7 @@ export function PropertyFilter({ CategoryOptions }: PropertyFilterProps) {
         <p className="font-semibold text-lg mb-4">Category</p>
         <div className="flex flex-wrap gap-2">
           {CATEGORY_OPTIONS.map((cat) => {
-            const isSelected = form.categories.includes(cat);
+            const isSelected = localForm.categories.includes(cat);
             return (
               <button
                 key={cat}
@@ -149,20 +231,20 @@ export function PropertyFilter({ CategoryOptions }: PropertyFilterProps) {
             <FormSelect
               label="Property Type"
               name="propertyType"
-              value={form.propertyType}
+              value={localForm.propertyType}
               onChange={handleChange}
               options={[
                 { value: "", label: "Any" },
-                { value: "apartment", label: "Apartment" },
-                { value: "house", label: "House" },
-                { value: "villa", label: "Villa" },
+                { value: "Apartment", label: "Apartment" },
+                { value: "House", label: "House" },
+                { value: "Villa", label: "Villa" },
               ]}
             />
 
             <FormSelect
               label="Area"
               name="area"
-              value={form.area}
+              value={localForm.area}
               onChange={handleChange}
               options={[
                 { value: "", label: "Any" },
@@ -178,7 +260,7 @@ export function PropertyFilter({ CategoryOptions }: PropertyFilterProps) {
             <FormSelect
               label="Beds"
               name="beds"
-              value={form.beds}
+              value={localForm.beds}
               onChange={handleChange}
               options={[
                 { value: "", label: "Any" },
@@ -192,7 +274,7 @@ export function PropertyFilter({ CategoryOptions }: PropertyFilterProps) {
             <FormSelect
               label="Bathroom"
               name="bathroom"
-              value={form.bathroom}
+              value={localForm.bathroom}
               onChange={handleChange}
               options={[
                 { value: "", label: "Any" },
@@ -208,7 +290,7 @@ export function PropertyFilter({ CategoryOptions }: PropertyFilterProps) {
             <FormSelect
               label="Apt. Type"
               name="aptType"
-              value={form.aptType}
+              value={localForm.aptType}
               onChange={handleChange}
               options={[
                 { value: "", label: "Any" },
@@ -221,7 +303,7 @@ export function PropertyFilter({ CategoryOptions }: PropertyFilterProps) {
             <FormSelect
               label="Bathroom"
               name="bathroom2"
-              value={form.bathroom2}
+              value={localForm.bathroom2}
               onChange={handleChange}
               options={[
                 { value: "", label: "Any" },
