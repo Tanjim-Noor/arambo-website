@@ -1,17 +1,17 @@
 // Property types based on API documentation
 export type PropertyType = 
-  | 'apartment' 
-  | 'house' 
-  | 'villa' 
-  | 'townhouse' 
-  | 'studio' 
-  | 'duplex' 
-  | 'penthouse' 
-  | 'commercial' 
-  | 'land' 
-  | 'other';
+  | 'Apartment' 
+  | 'House' 
+  | 'Villa' 
+  | 'Townhouse' 
+  | 'Studio' 
+  | 'Duplex' 
+  | 'Penthouse' 
+  | 'Commercial' 
+  | 'Land' 
+  | 'Other';
 
-export type Category = 'sale' | 'rent' | 'lease' | 'buy';
+export type Category = 'Sale' | 'Rent' | 'Lease' | 'Buy';
 
 export type InventoryStatus = 
   | 'Looking for Rent' 
@@ -25,7 +25,7 @@ export type InventoryStatus =
 
 export type TenantType = 'Family' | 'Bachelor' | 'Office' | 'Commercial' | 'Any';
 
-export type PropertyCategory = 'residential' | 'commercial';
+export type PropertyCategory = 'Residential' | 'Commercial';
 
 export type FurnishingStatus = 'Furnished' | 'Semi-Furnished' | 'Non-Furnished';
 

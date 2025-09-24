@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import ActionButtonContainer from "@/components/ActionButtonContainer";
 import { PropertyCard } from "../../components/PropertyCardSimple";
 import { PropertyFilter } from "@/components/PropertyFIlter";
@@ -10,12 +10,21 @@ import { useProperties } from "@/hooks/useProperties";
 import { PropertyFilters } from "@/types/property";
 import { PropertyListSkeleton } from "@/components/ui/LoadingComponents";
 import { ErrorMessage, EmptyState } from "@/components/ui/ErrorComponents";
+import { useUrlParams } from "@/hooks/useUrlParams";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const ResidentialPage = () => {
+  const { currentFilters, updateFilters } = useUrlParams();
+  const [heroSearchValue, setHeroSearchValue] = useState(currentFilters.location || "");
+  
+  // Debounce hero search input
+  const debouncedHeroSearch = useDebounce(heroSearchValue, 500);
+  
   const [filters, setFilters] = useState<PropertyFilters>({
     page: 1,
     limit: 10,
-    //propertyCategory: 'residential'
+    propertyCategory: 'Residential',
+    ...currentFilters
   });
   
   const { 
@@ -26,12 +35,29 @@ const ResidentialPage = () => {
     hasMore, 
     loadMore 
   } = useProperties(filters);
+  
   console.log("Properties:", properties);
   console.log("Error:", error);
-  console.log("isLoading:", isLoading);
-  console.log("isValidating:", isValidating);
-  console.log("hasMore:", hasMore);
+  console.log("Filters:", filters);
+  console.log("Current URL Filters:", currentFilters);
+  
   const loaderRef = useRef<HTMLDivElement | null>(null);
+
+  // Update filters when URL params change
+  useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      ...currentFilters,
+      page: 1, // Reset to first page when filters change
+    }));
+  }, [currentFilters]);
+
+  // Update hero search when debounced value changes
+  useEffect(() => {
+    if (debouncedHeroSearch !== currentFilters.location) {
+      updateFilters({ location: debouncedHeroSearch || undefined }, true);
+    }
+  }, [debouncedHeroSearch, currentFilters.location, updateFilters]);
 
   // Intersection Observer for infinite scroll
   useEffect(() => {
@@ -61,13 +87,19 @@ const ResidentialPage = () => {
     };
   }, [isValidating, hasMore, loadMore]);
 
-  // Handle filter changes
-  const handleFilterChange = (newFilters: Partial<PropertyFilters>) => {
+  // Handle filter changes from PropertyFilter component - memoized to prevent infinite re-renders
+  const handleFilterChange = useCallback((newFilters: Partial<PropertyFilters>) => {
     setFilters(prev => ({
       ...prev,
       ...newFilters,
       page: 1 // Reset to first page when filters change
     }));
+  }, []); // Empty dependency array since we only use setFilters
+
+  // Handle hero search input changes
+  const handleHeroSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchValue = e.target.value;
+    setHeroSearchValue(searchValue);
   };
 
   return (
@@ -93,13 +125,9 @@ const ResidentialPage = () => {
               <input
                 type="text"
                 placeholder="Search by location..."
+                value={heroSearchValue}
+                onChange={handleHeroSearchChange}
                 className="flex-1 bg-transparent text-white placeholder-white/70 outline-none text-sm sm:text-base min-w-0"
-                onChange={(e) => {
-                  const searchValue = e.target.value;
-                  handleFilterChange({ 
-                    location: searchValue || undefined 
-                  });
-                }}
               />
             </div>
           </div>
@@ -147,8 +175,11 @@ const ResidentialPage = () => {
                       setFilters({
                         page: 1,
                         limit: 10,
-                        //propertyCategory: 'residential'
+                        propertyCategory: 'Residential'
                       });
+                      setHeroSearchValue("");
+                      // Clear URL params as well
+                      window.history.replaceState({}, '', window.location.pathname);
                     }}
                   />
                 )}
