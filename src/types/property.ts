@@ -190,8 +190,8 @@ export interface PropertyFilters {
   limit?: number;
   category?: Category;
   propertyType?: PropertyType;
-  bedrooms?: number;
-  bathroom?: number;
+  bedrooms?: number | string;  // Allow strings like "4+" for 4+ bedrooms
+  bathroom?: number | string;  // Allow strings like "3+" for 3+ bathrooms
   minSize?: number;
   maxSize?: number;
   location?: string;

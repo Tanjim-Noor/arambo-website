@@ -82,6 +82,16 @@ const ResidentialPage = () => {
     setHeroSearchValue(searchValue);
   };
 
+  // Handle filter changes from PropertyFilter component
+  const handleFiltersChange = (newFilters: PropertyFilters) => {
+    console.log("Filter changes received:", newFilters);
+    setFilters(prev => ({
+      ...prev,
+      ...newFilters,
+      page: 1, // Reset to first page when filters change
+    }));
+  };
+
   return (
     <>
       {/* Hero Section */}
@@ -127,6 +137,7 @@ const ResidentialPage = () => {
               <div className="w-80 flex-shrink-0">
                 <PropertyFilter
                   CategoryOptions={["Furnished", "Non Furnished"]}
+                  onFiltersChange={handleFiltersChange}
                 />
               </div>
 

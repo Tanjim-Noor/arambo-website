@@ -42,7 +42,7 @@ export function useUrlParams() {
     const listingId = searchParams.get('listingId');
     if (listingId) params.listingId = listingId;
     
-    // Number parameters
+    // Number parameters (with special handling for strings like "4+", "3+")
     const page = searchParams.get('page');
     if (page) params.page = parseInt(page, 10);
     
@@ -50,10 +50,16 @@ export function useUrlParams() {
     if (limit) params.limit = parseInt(limit, 10);
     
     const bedrooms = searchParams.get('bedrooms');
-    if (bedrooms) params.bedrooms = parseInt(bedrooms, 10);
+    if (bedrooms) {
+      // Keep string values like "4+" as strings, convert regular numbers to integers
+      params.bedrooms = bedrooms.includes('+') ? bedrooms : parseInt(bedrooms, 10);
+    }
     
     const bathroom = searchParams.get('bathroom');
-    if (bathroom) params.bathroom = parseInt(bathroom, 10);
+    if (bathroom) {
+      // Keep string values like "3+" as strings, convert regular numbers to integers
+      params.bathroom = bathroom.includes('+') ? bathroom : parseInt(bathroom, 10);
+    }
     
     const minSize = searchParams.get('minSize');
     if (minSize) params.minSize = parseInt(minSize, 10);

@@ -41,10 +41,10 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
     const filters: Partial<PropertyFilters> = {
       minRent: localForm.minRent !== 10000 ? localForm.minRent : undefined,
       maxRent: localForm.maxRent !== 32000 ? localForm.maxRent : undefined,
-      propertyType: (localForm.propertyType as PropertyFilters['propertyType']) || undefined,
+      propertyType: localForm.propertyType ? (localForm.propertyType as PropertyFilters['propertyType']) : undefined,
       area: localForm.area || undefined,
-      bedrooms: localForm.beds ? parseInt(localForm.beds, 10) : undefined,
-      bathroom: localForm.bathroom ? parseInt(localForm.bathroom, 10) : undefined,
+      bedrooms: localForm.beds ? (localForm.beds.includes('+') ? localForm.beds : parseInt(localForm.beds, 10)) : undefined,
+      bathroom: localForm.bathroom ? (localForm.bathroom.includes('+') ? localForm.bathroom : parseInt(localForm.bathroom, 10)) : undefined,
     };
     
     // Check if there are actual changes to prevent unnecessary updates
@@ -57,10 +57,17 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       bathroom: currentFilters.bathroom,
     };
 
+    // Better change detection that handles clearing values (undefined vs actual values)
     const hasChanges = Object.keys(filters).some(key => {
       const newValue = filters[key as keyof typeof filters];
       const oldValue = currentValues[key as keyof typeof currentValues];
-      return newValue !== oldValue;
+      
+      // Handle the case where we're clearing a value (setting to undefined)
+      if (newValue === undefined && oldValue !== undefined) return true;
+      if (newValue !== undefined && oldValue === undefined) return true;
+      if (newValue !== oldValue) return true;
+      
+      return false;
     });
 
     if (hasChanges) {
@@ -78,7 +85,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
   useEffect(() => {
     setLocalForm(prev => {
       const newFormData = {
-        location: "",
+        location: currentFilters.location || "",
         minRent: currentFilters.minRent || 10000,
         maxRent: currentFilters.maxRent || 32000,
         categories: tenantTypes,
@@ -91,6 +98,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       };
 
       // Only update if there's actually a meaningful change
+      const hasLocationChange = prev.location !== newFormData.location;
       const hasRentChange = prev.minRent !== newFormData.minRent || prev.maxRent !== newFormData.maxRent;
       const hasTypeChange = prev.propertyType !== newFormData.propertyType;
       const hasAreaChange = prev.area !== newFormData.area;
@@ -98,14 +106,14 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       const hasBathroomChange = prev.bathroom !== newFormData.bathroom;
       const hasCategoriesChange = JSON.stringify(prev.categories) !== JSON.stringify(newFormData.categories);
 
-      if (hasRentChange || hasTypeChange || hasAreaChange || hasBedsChange || hasBathroomChange || hasCategoriesChange) {
+      if (hasLocationChange || hasRentChange || hasTypeChange || hasAreaChange || hasBedsChange || hasBathroomChange || hasCategoriesChange) {
         setSliderValue([newFormData.minRent, newFormData.maxRent]);
         return newFormData;
       }
       
       return prev;
     });
-  }, [currentFilters.minRent, currentFilters.maxRent, currentFilters.propertyType, currentFilters.area, currentFilters.bedrooms, currentFilters.bathroom, tenantTypes]);
+  }, [currentFilters.location, currentFilters.minRent, currentFilters.maxRent, currentFilters.propertyType, currentFilters.area, currentFilters.bedrooms, currentFilters.bathroom, tenantTypes]);
 
   // Generic handleChange for text/select inputs
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -114,6 +122,38 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       ...prev,
       [name]: value,
     }));
+  };
+
+  // Separate handler for location input with debounced API call
+  const debouncedLocationUpdate = useDebouncedCallback((...args: unknown[]) => {
+    const locationValue = args[0] as string;
+    if (locationValue?.trim()) {
+      const locationFilters: Partial<PropertyFilters> = {
+        location: locationValue.trim(),
+      };
+      
+      updateFilters(locationFilters, true);
+      onFiltersChange?.(locationFilters as PropertyFilters);
+    } else {
+      // If location is cleared, update filters to remove location
+      const clearedLocationFilters: Partial<PropertyFilters> = {
+        location: undefined,
+      };
+      
+      updateFilters(clearedLocationFilters, true);
+      onFiltersChange?.(clearedLocationFilters as PropertyFilters);
+    }
+  }, 500);
+
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setLocalForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // Trigger debounced update
+    debouncedLocationUpdate(value);
   };
 
   // Handle slider change
@@ -143,10 +183,20 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
     // Update URL with new tenantTypes
     updateTenantTypes(newCategories);
     
-    // Notify parent component
-    onFiltersChange?.({
-      tenantType: newCategories.length === 1 ? newCategories[0] as PropertyFilters['tenantType'] : undefined
-    } as PropertyFilters);
+    // Create a complete filter object for the callback
+    const categoryFilters: Partial<PropertyFilters> = {
+      tenantType: newCategories.length === 1 ? newCategories[0] as PropertyFilters['tenantType'] : undefined,
+      // Include all current filter values to ensure complete state
+      minRent: localForm.minRent !== 10000 ? localForm.minRent : undefined,
+      maxRent: localForm.maxRent !== 32000 ? localForm.maxRent : undefined,
+      propertyType: localForm.propertyType ? (localForm.propertyType as PropertyFilters['propertyType']) : undefined,
+      area: localForm.area || undefined,
+      bedrooms: localForm.beds ? (localForm.beds.includes('+') ? localForm.beds : parseInt(localForm.beds, 10)) : undefined,
+      bathroom: localForm.bathroom ? (localForm.bathroom.includes('+') ? localForm.bathroom : parseInt(localForm.bathroom, 10)) : undefined,
+    };
+    
+    // Notify parent component with complete filter state
+    onFiltersChange?.(categoryFilters as PropertyFilters);
   };
 
   return (
@@ -158,7 +208,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
           type="text"
           name="location"
           value={localForm.location}
-          onChange={handleChange}
+          onChange={handleLocationChange}
           placeholder="Search by location..."
           className="flex-1 pl-2 bg-transparent text-Arambo-Black placeholder-Arambo-Text outline-none text-sm sm:text-base min-w-0"
         />
@@ -270,7 +320,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
                 { value: "1", label: "1 Bed" },
                 { value: "2", label: "2 Beds" },
                 { value: "3", label: "3 Beds" },
-                { value: "4", label: "4+ Beds" },
+                { value: "4+", label: "4+ Beds" },
               ]}
             />
 
@@ -283,7 +333,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
                 { value: "", label: "Any" },
                 { value: "1", label: "1 Bath" },
                 { value: "2", label: "2 Baths" },
-                { value: "3", label: "3+ Baths" },
+                { value: "3+", label: "3+ Baths" },
               ]}
             />
           </div>
