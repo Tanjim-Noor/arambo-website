@@ -3,28 +3,10 @@ import React, { useState } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowRightLong } from "@fortawesome/free-solid-svg-icons"
 import { useCreateProperty } from '@/hooks/useProperties'
-import { PropertyFormData, PropertyCategory } from '@/types/property'
+import { PropertyFormData, PropertyCategory, PropertyAPIPayload, FurnishingStatus } from '@/types/property'
 import { LoadingSpinner } from '@/components/ui/LoadingComponents'
 import { ErrorMessage } from '@/components/ui/ErrorComponents'
 
-// Interface for transformed API payload
-interface PropertyAPIPayload {
-    name: string;
-    email: string;
-    phone: string;
-    propertyName: string;
-    propertyCategory: PropertyCategory;
-    size: number;
-    location: string;
-    bedrooms: number;
-    bathroom: number;
-    baranda: number;
-    category: string;
-    notes: string;
-    firstOwner: boolean;
-    paperworkUpdated: boolean;
-    onLoan: boolean;
-}
 
 const PropertyFormNew = () => {
     const [formData, setFormData] = useState<Partial<PropertyFormData>>({
@@ -192,6 +174,7 @@ const PropertyFormNew = () => {
             bathroom: bathroom!,
             baranda: baranda!,
             category: data.category!.trim(),
+            furnishingStatus: data.category!.trim() as FurnishingStatus,
             notes: data.notes?.trim() || '',
             firstOwner: convertToBoolean(data.firstOwner!),
             paperworkUpdated: convertToBoolean(data.paperworkUpdated!),
