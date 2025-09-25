@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import ActionButtonContainer from "@/components/ActionButtonContainer";
 import { PropertyCard } from "../../components/PropertyCardSimple";
 import { PropertyFilter } from "@/components/PropertyFIlter";
@@ -13,7 +13,7 @@ import { ErrorMessage, EmptyState } from "@/components/ui/ErrorComponents";
 import { useUrlParams } from "@/hooks/useUrlParams";
 
 const ResidentialPage = () => {
-  const { currentFilters } = useUrlParams();
+  const { currentFilters, updateFilters } = useUrlParams();
   const [heroSearchValue, setHeroSearchValue] = useState("");
   
   const [filters, setFilters] = useState<PropertyFilters>({
@@ -92,6 +92,17 @@ const ResidentialPage = () => {
     }));
   };
 
+  // Handle ActionButtonContainer selection change
+  const handleActionButtonChange = useCallback((selection: "rent" | "buy") => {
+    const listingType = selection === "rent" ? "For Rent" : "For Sale";
+    
+    // Only update if the listingType actually changed
+    if (currentFilters.listingType !== listingType) {
+      // Update URL params
+      updateFilters({ listingType }, false);
+    }
+  }, [currentFilters.listingType, updateFilters]);
+
   return (
     <>
       {/* Hero Section */}
@@ -123,7 +134,11 @@ const ResidentialPage = () => {
           </div>
 
           <div className="relative z-20 sm:absolute left-1/2 sm:-bottom-12 lg:-bottom-16 items-center -translate-x-1/2 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-4/5 md:w-2/3 justify-center p-3 sm:p-4">
-            <ActionButtonContainer defaultSelected="buy" />
+            <ActionButtonContainer 
+              defaultSelected="rent" 
+              onSelectionChange={handleActionButtonChange}
+              initialListingType={currentFilters.listingType}
+            />
           </div>
         </div>
       </section>

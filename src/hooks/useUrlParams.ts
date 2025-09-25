@@ -89,6 +89,9 @@ export function useUrlParams(categoryType: 'tenantType' | 'furnishingStatus' = '
     const apartmentType = searchParams.get('apartmentType');
     if (apartmentType) params.apartmentType = apartmentType;
     
+    const listingType = searchParams.get('listingType');
+    if (listingType) params.listingType = listingType;
+    
     // Handle multiple tenantType values
     const tenantTypes = searchParams.getAll('tenantType');
     if (tenantTypes.length === 1) {
