@@ -65,7 +65,7 @@ const PropertyFormNew = () => {
         } else {
             setFormData((prev) => ({
                 ...prev,
-                [name]: name !== 'notes' ? value.trim() : value, // sanitization like original Form.tsx
+                [name]: name !== 'notes' && name !== 'location' ? value.trim() : value, // sanitization like original Form.tsx
             }))
         }
     }
@@ -436,7 +436,7 @@ const PropertyFormNew = () => {
                                         placeholder='Your answer'
                                         className='h-full  placeholder:text-Arambo-Text bg-Arambo-Background rounded-lg'
                                         required
-                                        checked={formData.category === "furnished"}
+                                        checked={formData.category === "Furnished"}
                                         onChange={handleChange}
                                     />
                                     <label htmlFor="furnished" className='text-Arambo-Text'>Furnished</label>
@@ -450,7 +450,7 @@ const PropertyFormNew = () => {
                                         placeholder='Your answer'
                                         className='h-full  placeholder:text-Arambo-Text bg-Arambo-Background rounded-lg'
                                         required
-                                        checked={formData.category === "semi-furnished"}
+                                        checked={formData.category === "Semi-Furnished"}
                                         onChange={handleChange}
                                     />
                                     <label htmlFor="semi-furnished" className='text-Arambo-Text'>Semi-furnished</label>
@@ -464,7 +464,7 @@ const PropertyFormNew = () => {
                                         placeholder='Your answer'
                                         className='h-full  placeholder:text-Arambo-Text bg-Arambo-Background rounded-lg'
                                         required
-                                        checked={formData.category === "unfurnished"}
+                                        checked={formData.category === "Unfurnished"}
                                         onChange={handleChange}
                                     />
                                     <label htmlFor="unfurnished" className='text-Arambo-Text'>Unfurnished</label>
