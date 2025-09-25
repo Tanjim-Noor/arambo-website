@@ -52,6 +52,9 @@ export function useUrlParams() {
     const bedrooms = searchParams.get('bedrooms');
     if (bedrooms) params.bedrooms = parseInt(bedrooms, 10);
     
+    const bathroom = searchParams.get('bathroom');
+    if (bathroom) params.bathroom = parseInt(bathroom, 10);
+    
     const minSize = searchParams.get('minSize');
     if (minSize) params.minSize = parseInt(minSize, 10);
     

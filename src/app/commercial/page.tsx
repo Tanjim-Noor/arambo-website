@@ -2,80 +2,85 @@
 
 import { useEffect, useRef, useState } from "react";
 import ActionButtonContainer from "@/components/ActionButtonContainer";
-import { PropertyCard } from "@/components/PropertyCard";
+import { PropertyCard } from "../../components/PropertyCardSimple";
 import { PropertyFilter } from "@/components/PropertyFIlter";
 import ServiceCards from "@/components/ServiceCards";
 import { Search } from "lucide-react";
-import { properties } from "@/utils/properties";
+import { useProperties } from "@/hooks/useProperties";
+import { PropertyFilters } from "@/types/property";
+import { PropertyListSkeleton } from "@/components/ui/LoadingComponents";
+import { ErrorMessage, EmptyState } from "@/components/ui/ErrorComponents";
+import { useUrlParams } from "@/hooks/useUrlParams";
 
-const CommercialPage = () => {
-  const [displayedProperties, setDisplayedProperties] = useState<
-    typeof properties
-  >([]);
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+const ResidentialPage = () => {
+  const { currentFilters } = useUrlParams();
+  const [heroSearchValue, setHeroSearchValue] = useState("");
+  
+  const [filters, setFilters] = useState<PropertyFilters>({
+    page: 1,
+    limit: 10,
+    propertyCategory: 'Commercial',
+    ...currentFilters
+  });
+  
+  const { 
+    properties, 
+    error, 
+    isLoading, 
+    isValidating, 
+    hasMore, 
+    loadMore 
+  } = useProperties(filters);
+  
+  console.log("Properties:", properties);
+  console.log("Error:", error);
+  console.log("Filters:", filters);
+  console.log("Current URL Filters:", currentFilters);
+  
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
-  // Initialize with first 6 properties and reset state on mount
+  // Update filters when URL params change
   useEffect(() => {
-    // Reset all states when component mounts
-    setDisplayedProperties([]);
-    setLoading(false);
-    setHasMore(true);
+    setFilters(prev => ({
+      ...prev,
+      ...currentFilters,
+      page: 1, // Reset to first page when filters change
+    }));
+  }, [currentFilters]);
 
-    // Set initial properties after a small delay to ensure clean state
-    const timer = setTimeout(() => {
-      const initialProperties = properties.slice(0, 6);
-      setDisplayedProperties(initialProperties);
-      setHasMore(properties.length > 6);
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, []);
-
+  // Intersection Observer for infinite scroll
   useEffect(() => {
-    // Disconnect any existing observer when component mounts
-    if (loaderRef.current) {
-      const currentLoader = loaderRef.current;
-      // Create a new observer for this mount
-      const observer = new IntersectionObserver(
-        (entries) => {
-          const target = entries[0];
-          if (target.isIntersecting && !loading && hasMore) {
-            setLoading(true);
-
-            setTimeout(() => {
-              setDisplayedProperties((prev) => {
-                const currentLength = prev.length;
-                const nextBatch = properties.slice(
-                  currentLength,
-                  currentLength + 6
-                );
-                const newProperties = [...prev, ...nextBatch];
-
-                // Check if we've loaded all properties
-                if (newProperties.length >= properties.length) {
-                  setHasMore(false);
-                }
-
-                return newProperties;
-              });
-              setLoading(false);
-            }, 1000);
-          }
-        },
-        { threshold: 1.0 }
-      );
-
-      if (hasMore && displayedProperties.length > 0) {
-        observer.observe(currentLoader);
+    const currentRef = loaderRef.current;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const target = entries[0];
+        if (target.isIntersecting && !isValidating && hasMore) {
+          loadMore();
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '100px',
       }
+    );
 
-      return () => {
-        observer.disconnect();
-      };
+    if (currentRef) {
+      observer.observe(currentRef);
     }
-  }, [loading, hasMore, displayedProperties.length]);
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [isValidating, hasMore, loadMore]);
+
+  // Handle hero search input changes (no functionality, just visual)
+  const handleHeroSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchValue = e.target.value;
+    setHeroSearchValue(searchValue);
+  };
 
   return (
     <>
@@ -83,13 +88,13 @@ const CommercialPage = () => {
       <section className="w-full px-3">
         <div
           className="relative w-full py-16 sm:py-24 lg:py-32 rounded-2xl bg-cover bg-center"
-          style={{ backgroundImage: "url('/commercial/commercial-bg.png')" }}
+          style={{ backgroundImage: "url('/residential/residential-bg.png')" }}
         >
           <div className="absolute inset-0 bg-black/30 rounded-2xl z-0"></div>
 
           <div className="relative z-10 font-sans flex flex-col items-center gap-2 sm:gap-4 justify-center h-full text-center px-4 sm:px-6">
             <h1 className="h2 @lg:h1 font-semibold text-white">
-              Commercial Properties
+              Residential Properties
             </h1>
             <p className="body-md sm:body-lg lg:h6 text-white/80 max-w-md">
               Sort by location to find the best lists
@@ -100,11 +105,13 @@ const CommercialPage = () => {
               <input
                 type="text"
                 placeholder="Search by location..."
+                value={heroSearchValue}
+                onChange={handleHeroSearchChange}
                 className="flex-1 bg-transparent text-white placeholder-white/70 outline-none text-sm sm:text-base min-w-0"
               />
             </div>
           </div>
-          
+
           <div className="relative z-20 sm:absolute left-1/2 sm:-bottom-12 lg:-bottom-16 items-center -translate-x-1/2 flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-4/5 md:w-2/3 justify-center p-3 sm:p-4">
             <ActionButtonContainer defaultSelected="buy" />
           </div>
@@ -124,11 +131,45 @@ const CommercialPage = () => {
               </div>
 
               <div className="flex-1">
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6">
-                  {displayedProperties.map((property) => (
-                    <PropertyCard key={property.id} property={property} />
-                  ))}
-                </div>
+                {/* Error State */}
+                {error && (
+                  <ErrorMessage
+                    message={error}
+                    onRetry={() => window.location.reload()}
+                    className="mb-8"
+                  />
+                )}
+
+                {/* Loading State */}
+                {isLoading && properties.length === 0 && (
+                  <PropertyListSkeleton count={6} />
+                )}
+
+                {/* Empty State */}
+                {!isLoading && !error && properties.length === 0 && (
+                  <EmptyState
+                    title="No Properties Found"
+                    description="Try adjusting your filters or search criteria to find more properties."
+                    actionLabel="Clear Filters"
+                    onAction={() => {
+                      setFilters({
+                        page: 1,
+                        limit: 10,
+                        propertyCategory: 'Residential'
+                      });
+                      setHeroSearchValue("");
+                    }}
+                  />
+                )}
+
+                {/* Properties Grid */}
+                {properties.length > 0 && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6">
+                    {properties.map((property) => (
+                      <PropertyCard key={property.id} property={property} />
+                    ))}
+                  </div>
+                )}
 
                 {/* Loading Spinner - Only show if there are more items to load */}
                 {hasMore && (
@@ -136,7 +177,7 @@ const CommercialPage = () => {
                     ref={loaderRef}
                     className="flex flex-col items-center justify-center py-8"
                   >
-                    {loading && (
+                    {isValidating && (
                       <>
                         <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#1946bb]/30 border-t-[#1946bb]"></div>
                         <p className="mt-3 text-Arambo-Accent font-medium">
@@ -159,5 +200,4 @@ const CommercialPage = () => {
   );
 };
 
-export default CommercialPage;
-
+export default ResidentialPage;

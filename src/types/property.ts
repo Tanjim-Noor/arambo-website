@@ -191,6 +191,7 @@ export interface PropertyFilters {
   category?: Category;
   propertyType?: PropertyType;
   bedrooms?: number;
+  bathroom?: number;
   minSize?: number;
   maxSize?: number;
   location?: string;

@@ -26,7 +26,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
     propertyType: currentFilters.propertyType || "",
     area: currentFilters.area || "",
     beds: currentFilters.bedrooms?.toString() || "",
-    bathroom: "",
+    bathroom: currentFilters.bathroom?.toString() || "",
     aptType: "",
     bathroom2: "",
   }));
@@ -44,6 +44,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       propertyType: (localForm.propertyType as PropertyFilters['propertyType']) || undefined,
       area: localForm.area || undefined,
       bedrooms: localForm.beds ? parseInt(localForm.beds, 10) : undefined,
+      bathroom: localForm.bathroom ? parseInt(localForm.bathroom, 10) : undefined,
     };
     
     // Check if there are actual changes to prevent unnecessary updates
@@ -53,6 +54,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       propertyType: currentFilters.propertyType,
       area: currentFilters.area,
       bedrooms: currentFilters.bedrooms,
+      bathroom: currentFilters.bathroom,
     };
 
     const hasChanges = Object.keys(filters).some(key => {
@@ -70,7 +72,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
   // Trigger debounced update when other filters change
   useEffect(() => {
     debouncedUpdateOtherFilters();
-  }, [localForm.minRent, localForm.maxRent, localForm.propertyType, localForm.area, localForm.beds, debouncedUpdateOtherFilters]);
+  }, [localForm.minRent, localForm.maxRent, localForm.propertyType, localForm.area, localForm.beds, localForm.bathroom, debouncedUpdateOtherFilters]);
 
   // Sync local form with URL params when they change externally (simplified logic)
   useEffect(() => {
@@ -83,7 +85,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
         propertyType: currentFilters.propertyType || "",
         area: currentFilters.area || "",
         beds: currentFilters.bedrooms?.toString() || "",
-        bathroom: prev.bathroom,
+        bathroom: currentFilters.bathroom?.toString() || "",
         aptType: prev.aptType,
         bathroom2: prev.bathroom2,
       };
@@ -93,16 +95,17 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       const hasTypeChange = prev.propertyType !== newFormData.propertyType;
       const hasAreaChange = prev.area !== newFormData.area;
       const hasBedsChange = prev.beds !== newFormData.beds;
+      const hasBathroomChange = prev.bathroom !== newFormData.bathroom;
       const hasCategoriesChange = JSON.stringify(prev.categories) !== JSON.stringify(newFormData.categories);
 
-      if (hasRentChange || hasTypeChange || hasAreaChange || hasBedsChange || hasCategoriesChange) {
+      if (hasRentChange || hasTypeChange || hasAreaChange || hasBedsChange || hasBathroomChange || hasCategoriesChange) {
         setSliderValue([newFormData.minRent, newFormData.maxRent]);
         return newFormData;
       }
       
       return prev;
     });
-  }, [currentFilters.minRent, currentFilters.maxRent, currentFilters.propertyType, currentFilters.area, currentFilters.bedrooms, tenantTypes]);
+  }, [currentFilters.minRent, currentFilters.maxRent, currentFilters.propertyType, currentFilters.area, currentFilters.bedrooms, currentFilters.bathroom, tenantTypes]);
 
   // Generic handleChange for text/select inputs
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -272,7 +275,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
             />
 
             <FormSelect
-              label="Bathroom"
+              label="Bathrooms"
               name="bathroom"
               value={localForm.bathroom}
               onChange={handleChange}
@@ -301,7 +304,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
             />
 
             <FormSelect
-              label="Bathroom"
+              label="Bathrooms"
               name="bathroom2"
               value={localForm.bathroom2}
               onChange={handleChange}
