@@ -442,15 +442,15 @@ const PropertyFormNew = () => {
                                     <input
                                         type="radio"
                                         name="category"
-                                        value={"Unfurnished"}
+                                        value={"Non-Furnished"}
                                         id='unfurnished'
                                         placeholder='Your answer'
                                         className='h-full  placeholder:text-Arambo-Text bg-Arambo-Background rounded-lg'
                                         required
-                                        checked={formData.category === "Unfurnished"}
+                                        checked={formData.category === "Non-Furnished"}
                                         onChange={handleChange}
                                     />
-                                    <label htmlFor="unfurnished" className='text-Arambo-Text'>Unfurnished</label>
+                                    <label htmlFor="unfurnished" className='text-Arambo-Text'>Non-Furnished</label>
                                 </div>
                             </div>
                         </div>

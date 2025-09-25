@@ -138,6 +138,7 @@ const ResidentialPage = () => {
                 <PropertyFilter
                   CategoryOptions={["Women", "Family", "Bachelor"]}
                   onFiltersChange={handleFiltersChange}
+                  categoryType="tenantType"
                 />
               </div>
 

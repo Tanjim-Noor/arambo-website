@@ -5,7 +5,7 @@ import { PropertyFilters } from '@/types/property';
 /**
  * Hook to manage URL search parameters for property filters
  */
-export function useUrlParams() {
+export function useUrlParams(categoryType: 'tenantType' | 'furnishingStatus' = 'tenantType') {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -32,9 +32,6 @@ export function useUrlParams() {
     
     const inventoryStatus = searchParams.get('inventoryStatus');
     if (inventoryStatus) params.inventoryStatus = inventoryStatus as PropertyFilters['inventoryStatus'];
-    
-    const furnishingStatus = searchParams.get('furnishingStatus');
-    if (furnishingStatus) params.furnishingStatus = furnishingStatus as PropertyFilters['furnishingStatus'];
     
     const houseId = searchParams.get('houseId');
     if (houseId) params.houseId = houseId;
@@ -96,6 +93,12 @@ export function useUrlParams() {
     const tenantTypes = searchParams.getAll('tenantType');
     if (tenantTypes.length === 1) {
       params.tenantType = tenantTypes[0] as PropertyFilters['tenantType'];
+    }
+    
+    // Handle multiple furnishingStatus values
+    const furnishingStatuses = searchParams.getAll('furnishingStatus');
+    if (furnishingStatuses.length === 1) {
+      params.furnishingStatus = furnishingStatuses[0] as PropertyFilters['furnishingStatus'];
     }
     
     return params;
@@ -174,6 +177,28 @@ export function useUrlParams() {
     router.replace(`${pathname}${query}`);
   }, [pathname, router, searchParams]);
 
+  // Handle category values based on categoryType (tenantType or furnishingStatus)
+  const categoryValues = useMemo(() => {
+    return searchParams.getAll(categoryType);
+  }, [searchParams, categoryType]);
+
+  const updateCategoryValues = useCallback((values: string[]) => {
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    
+    // Remove all existing category params
+    current.delete(categoryType);
+    
+    // Add new category params
+    values.forEach(value => {
+      current.append(categoryType, value);
+    });
+    
+    const search = current.toString();
+    const query = search ? `?${search}` : '';
+    
+    router.replace(`${pathname}${query}`);
+  }, [pathname, router, searchParams, categoryType]);
+
   return {
     currentFilters,
     updateFilters,
@@ -181,5 +206,7 @@ export function useUrlParams() {
     clearAllFilters,
     tenantTypes,
     updateTenantTypes,
+    categoryValues,
+    updateCategoryValues,
   };
 }

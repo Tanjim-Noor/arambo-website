@@ -11,18 +11,19 @@ import { PropertyFilters } from "@/types/property";
 interface PropertyFilterProps {
   CategoryOptions: string[];
   onFiltersChange?: (filters: PropertyFilters) => void;
+  categoryType?: 'tenantType' | 'furnishingStatus'; // New prop to determine parameter type
 }
 
-export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFilterProps) {
+export function PropertyFilter({ CategoryOptions, onFiltersChange, categoryType = 'tenantType' }: PropertyFilterProps) {
   const CATEGORY_OPTIONS = CategoryOptions;
-  const { currentFilters, updateFilters, tenantTypes, updateTenantTypes } = useUrlParams();
+  const { currentFilters, updateFilters, categoryValues, updateCategoryValues } = useUrlParams(categoryType);
   
   // Initialize local state only once
   const [localForm, setLocalForm] = useState(() => ({
     location: "",
     minRent: currentFilters.minRent || 10000,
     maxRent: currentFilters.maxRent || 32000,
-    categories: tenantTypes,
+    categories: categoryValues,
     propertyType: currentFilters.propertyType || "",
     area: currentFilters.area || "",
     beds: currentFilters.bedrooms?.toString() || "",
@@ -90,7 +91,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
         location: currentFilters.location || "",
         minRent: currentFilters.minRent || 10000,
         maxRent: currentFilters.maxRent || 32000,
-        categories: tenantTypes,
+        categories: categoryValues,
         propertyType: currentFilters.propertyType || "",
         area: currentFilters.area || "",
         beds: currentFilters.bedrooms?.toString() || "",
@@ -116,7 +117,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       
       return prev;
     });
-  }, [currentFilters.location, currentFilters.minRent, currentFilters.maxRent, currentFilters.propertyType, currentFilters.area, currentFilters.bedrooms, currentFilters.bathroom, currentFilters.apartmentType, tenantTypes]);
+  }, [currentFilters.location, currentFilters.minRent, currentFilters.maxRent, currentFilters.propertyType, currentFilters.area, currentFilters.bedrooms, currentFilters.bathroom, currentFilters.apartmentType, categoryValues]);
 
   // Generic handleChange for text/select inputs
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -175,7 +176,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
   const handleCategoryToggle = (category: string) => {
     const isSelected = localForm.categories.includes(category);
     const newCategories = isSelected
-      ? localForm.categories.filter((c) => c !== category)
+      ? localForm.categories.filter((c: string) => c !== category)
       : [...localForm.categories, category];
     
     setLocalForm((prev) => ({
@@ -183,21 +184,27 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       categories: newCategories,
     }));
     
-    // Update URL with new tenantTypes
-    updateTenantTypes(newCategories);
+    // Update URL with new category values (generic for both tenantType and furnishingStatus)
+    updateCategoryValues(newCategories);
     
     // Create a complete filter object for the callback
-    const categoryFilters: Partial<PropertyFilters> = {
-      tenantType: newCategories.length === 1 ? newCategories[0] as PropertyFilters['tenantType'] : undefined,
-      // Include all current filter values to ensure complete state
-      minRent: localForm.minRent !== 10000 ? localForm.minRent : undefined,
-      maxRent: localForm.maxRent !== 32000 ? localForm.maxRent : undefined,
-      propertyType: localForm.propertyType ? (localForm.propertyType as PropertyFilters['propertyType']) : undefined,
-      area: localForm.area || undefined,
-      bedrooms: localForm.beds ? (localForm.beds.includes('+') ? localForm.beds : parseInt(localForm.beds, 10)) : undefined,
-      bathroom: localForm.bathroom ? (localForm.bathroom.includes('+') ? localForm.bathroom : parseInt(localForm.bathroom, 10)) : undefined,
-      apartmentType: localForm.apartmentType || undefined,
-    };
+    const categoryFilters: Partial<PropertyFilters> = {};
+    
+    // Set the appropriate filter based on categoryType
+    if (categoryType === 'tenantType') {
+      categoryFilters.tenantType = newCategories.length === 1 ? newCategories[0] as PropertyFilters['tenantType'] : undefined;
+    } else if (categoryType === 'furnishingStatus') {
+      categoryFilters.furnishingStatus = newCategories.length === 1 ? newCategories[0] as PropertyFilters['furnishingStatus'] : undefined;
+    }
+    
+    // Include all current filter values to ensure complete state
+    categoryFilters.minRent = localForm.minRent !== 10000 ? localForm.minRent : undefined;
+    categoryFilters.maxRent = localForm.maxRent !== 32000 ? localForm.maxRent : undefined;
+    categoryFilters.propertyType = localForm.propertyType ? (localForm.propertyType as PropertyFilters['propertyType']) : undefined;
+    categoryFilters.area = localForm.area || undefined;
+    categoryFilters.bedrooms = localForm.beds ? (localForm.beds.includes('+') ? localForm.beds : parseInt(localForm.beds, 10)) : undefined;
+    categoryFilters.bathroom = localForm.bathroom ? (localForm.bathroom.includes('+') ? localForm.bathroom : parseInt(localForm.bathroom, 10)) : undefined;
+    categoryFilters.apartmentType = localForm.apartmentType || undefined;
     
     // Notify parent component with complete filter state
     onFiltersChange?.(categoryFilters as PropertyFilters);

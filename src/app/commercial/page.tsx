@@ -104,7 +104,7 @@ const ResidentialPage = () => {
 
           <div className="relative z-10 font-sans flex flex-col items-center gap-2 sm:gap-4 justify-center h-full text-center px-4 sm:px-6">
             <h1 className="h2 @lg:h1 font-semibold text-white">
-              Residential Properties
+              Commercial Properties
             </h1>
             <p className="body-md sm:body-lg lg:h6 text-white/80 max-w-md">
               Sort by location to find the best lists
@@ -136,8 +136,9 @@ const ResidentialPage = () => {
               {/* Left Sidebar - Filters */}
               <div className="w-80 flex-shrink-0">
                 <PropertyFilter
-                  CategoryOptions={["Furnished", "Non Furnished"]}
+                  CategoryOptions={["Furnished", "Semi-Furnished","Non-Furnished"]}
                   onFiltersChange={handleFiltersChange}
+                  categoryType="furnishingStatus"
                 />
               </div>
 
@@ -166,7 +167,7 @@ const ResidentialPage = () => {
                       setFilters({
                         page: 1,
                         limit: 10,
-                        propertyCategory: 'Residential'
+                        propertyCategory: 'Commercial'
                       });
                       setHeroSearchValue("");
                     }}
