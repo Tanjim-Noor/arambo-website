@@ -27,7 +27,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
     area: currentFilters.area || "",
     beds: currentFilters.bedrooms?.toString() || "",
     bathroom: currentFilters.bathroom?.toString() || "",
-    aptType: "",
+    apartmentType: currentFilters.apartmentType || "",
     bathroom2: "",
   }));
 
@@ -45,6 +45,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       area: localForm.area || undefined,
       bedrooms: localForm.beds ? (localForm.beds.includes('+') ? localForm.beds : parseInt(localForm.beds, 10)) : undefined,
       bathroom: localForm.bathroom ? (localForm.bathroom.includes('+') ? localForm.bathroom : parseInt(localForm.bathroom, 10)) : undefined,
+      apartmentType: localForm.apartmentType || undefined,
     };
     
     // Check if there are actual changes to prevent unnecessary updates
@@ -55,6 +56,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       area: currentFilters.area,
       bedrooms: currentFilters.bedrooms,
       bathroom: currentFilters.bathroom,
+      apartmentType: currentFilters.apartmentType,
     };
 
     // Better change detection that handles clearing values (undefined vs actual values)
@@ -79,7 +81,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
   // Trigger debounced update when other filters change
   useEffect(() => {
     debouncedUpdateOtherFilters();
-  }, [localForm.minRent, localForm.maxRent, localForm.propertyType, localForm.area, localForm.beds, localForm.bathroom, debouncedUpdateOtherFilters]);
+  }, [localForm.minRent, localForm.maxRent, localForm.propertyType, localForm.area, localForm.beds, localForm.bathroom, localForm.apartmentType, debouncedUpdateOtherFilters]);
 
   // Sync local form with URL params when they change externally (simplified logic)
   useEffect(() => {
@@ -93,7 +95,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
         area: currentFilters.area || "",
         beds: currentFilters.bedrooms?.toString() || "",
         bathroom: currentFilters.bathroom?.toString() || "",
-        aptType: prev.aptType,
+        apartmentType: currentFilters.apartmentType || "",
         bathroom2: prev.bathroom2,
       };
 
@@ -104,16 +106,17 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       const hasAreaChange = prev.area !== newFormData.area;
       const hasBedsChange = prev.beds !== newFormData.beds;
       const hasBathroomChange = prev.bathroom !== newFormData.bathroom;
+      const hasApartmentTypeChange = prev.apartmentType !== newFormData.apartmentType;
       const hasCategoriesChange = JSON.stringify(prev.categories) !== JSON.stringify(newFormData.categories);
 
-      if (hasLocationChange || hasRentChange || hasTypeChange || hasAreaChange || hasBedsChange || hasBathroomChange || hasCategoriesChange) {
+      if (hasLocationChange || hasRentChange || hasTypeChange || hasAreaChange || hasBedsChange || hasBathroomChange || hasApartmentTypeChange || hasCategoriesChange) {
         setSliderValue([newFormData.minRent, newFormData.maxRent]);
         return newFormData;
       }
       
       return prev;
     });
-  }, [currentFilters.location, currentFilters.minRent, currentFilters.maxRent, currentFilters.propertyType, currentFilters.area, currentFilters.bedrooms, currentFilters.bathroom, tenantTypes]);
+  }, [currentFilters.location, currentFilters.minRent, currentFilters.maxRent, currentFilters.propertyType, currentFilters.area, currentFilters.bedrooms, currentFilters.bathroom, currentFilters.apartmentType, tenantTypes]);
 
   // Generic handleChange for text/select inputs
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -193,6 +196,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       area: localForm.area || undefined,
       bedrooms: localForm.beds ? (localForm.beds.includes('+') ? localForm.beds : parseInt(localForm.beds, 10)) : undefined,
       bathroom: localForm.bathroom ? (localForm.bathroom.includes('+') ? localForm.bathroom : parseInt(localForm.bathroom, 10)) : undefined,
+      apartmentType: localForm.apartmentType || undefined,
     };
     
     // Notify parent component with complete filter state
@@ -342,13 +346,13 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <FormSelect
               label="Apt. Type"
-              name="aptType"
-              value={localForm.aptType}
+              name="apartmentType"
+              value={localForm.apartmentType}
               onChange={handleChange}
               options={[
                 { value: "", label: "Any" },
                 { value: "studio", label: "Studio" },
-                { value: "dupl  ex", label: "Duplex" },
+                { value: "duplex", label: "Duplex" },
                 { value: "penthouse", label: "Penthouse" },
               ]}
             />

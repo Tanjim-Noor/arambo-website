@@ -89,6 +89,9 @@ export function useUrlParams() {
     if (isConfirmed === 'true') params.isConfirmed = true;
     if (isConfirmed === 'false') params.isConfirmed = false;
     
+    const apartmentType = searchParams.get('apartmentType');
+    if (apartmentType) params.apartmentType = apartmentType;
+    
     // Handle multiple tenantType values
     const tenantTypes = searchParams.getAll('tenantType');
     if (tenantTypes.length === 1) {

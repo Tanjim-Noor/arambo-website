@@ -208,6 +208,7 @@ export interface PropertyFilters {
   houseId?: string;
   listingId?: string;
   isConfirmed?: boolean;
+  apartmentType?: string;
 }
 
 // Property statistics response
