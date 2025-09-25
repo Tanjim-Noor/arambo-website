@@ -192,13 +192,28 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
                         {property.totalFloor && <li>Floor: {property.floor} of {property.totalFloor}</li>}
                       </ul>
                     </div>
+                    
+                    <div>
+                      <h3 className="label-16 mb-2 font-medium">Facilities</h3>
+                      <ul className="space-y-1 sm:space-y-2 list-disc list-inside label-16">
+                        {property.cctv && <li>CCTV</li>}
+                        {property.communityHall && <li>Community Hall</li>}
+                        {property.gym && <li>Gym</li>}
+                        {property.masjid && <li>Masjid</li>}
+                        {property.parking && <li>Parking</li>}
+                        {property.petsAllowed && <li>Pets Allowed</li>}
+                        {property.swimmingPool && <li>Swimming Pool</li>}
+                        {property.trainedGuard && <li>Trained Security</li>}
+                      </ul>
+                    </div>
+
                     {(property.cleanHygieneScore || property.sunlightScore || property.bathroomConditionsScore) && (
                       <div>
-                        <h3 className="label-16 mb-2">Quality Ratings</h3>
+                        <h3 className="label-16 mb-2 font-medium">Quality Ratings</h3>
                         <ul className="space-y-1 sm:space-y-2 list-disc list-inside label-16">
-                          {property.cleanHygieneScore && <li>Cleanliness: {property.cleanHygieneScore}/5</li>}
-                          {property.sunlightScore && <li>Sunlight: {property.sunlightScore}/5</li>}
-                          {property.bathroomConditionsScore && <li>Bathroom Quality: {property.bathroomConditionsScore}/5</li>}
+                          {property.cleanHygieneScore && <li>Cleanliness: {property.cleanHygieneScore}/10</li>}
+                          {property.sunlightScore && <li>Sunlight: {property.sunlightScore}/10</li>}
+                          {property.bathroomConditionsScore && <li>Bathroom Quality: {property.bathroomConditionsScore}/10</li>}
                         </ul>
                       </div>
                     )}
@@ -207,7 +222,7 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
                 <div className="flex-1">
                   <div className="flex flex-col gap-3 sm:gap-4">
                     <div>
-                      <h3 className="label-16 mb-2">Property Details</h3>
+                      <h3 className="label-16 mb-2 font-medium">Property Details</h3>
                       <ul className="space-y-1 sm:space-y-2 list-disc list-inside label-16">
                         <li>Floor: {property.floor || "Not specified"}</li>
                         <li>Status: {property.inventoryStatus || "Available"}</li>

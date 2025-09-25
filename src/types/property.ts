@@ -76,6 +76,17 @@ export interface Property {
   cleanHygieneScore?: number;    // 1-10 rating
   sunlightScore?: number;        // 1-10 rating
   bathroomConditionsScore?: number; // 1-10 rating
+
+  // Facility boolean fields
+  cctv?: boolean;                // CCTV surveillance
+  communityHall?: boolean;       // Community hall available
+  gym?: boolean;                 // Gym facility
+  masjid?: boolean;              // Masjid/mosque available
+  parking?: boolean;             // Parking space available
+  petsAllowed?: boolean;         // Pets allowed
+  swimmingPool?: boolean;        // Swimming pool
+  trainedGuard?: boolean;        // Trained security guard
+
   coverImage?: string;           // Cover image URL
   otherImages?: string[];        // Additional image URLs
 }
@@ -119,6 +130,17 @@ export interface PropertyFormData {
   cleanHygieneScore?: number;
   sunlightScore?: number;
   bathroomConditionsScore?: number;
+
+  // Facility boolean fields
+  cctv?: boolean;
+  communityHall?: boolean;
+  gym?: boolean;
+  masjid?: boolean;
+  parking?: boolean;
+  petsAllowed?: boolean;
+  swimmingPool?: boolean;
+  trainedGuard?: boolean;
+
   coverImage?: string;
   otherImages?: string[];
 }
@@ -161,6 +183,17 @@ export interface PropertyAPIPayload {
   cleanHygieneScore?: number;
   sunlightScore?: number;
   bathroomConditionsScore?: number;
+
+  // Facility boolean fields
+  cctv?: boolean;
+  communityHall?: boolean;
+  gym?: boolean;
+  masjid?: boolean;
+  parking?: boolean;
+  petsAllowed?: boolean;
+  swimmingPool?: boolean;
+  trainedGuard?: boolean;
+
   coverImage?: string;
   otherImages?: string[];
 }
