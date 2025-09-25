@@ -231,14 +231,14 @@ const Form = () => {
                                     <input
                                         type="radio"
                                         name="category"
-                                        value={"unfurnished"}
+                                        value={"non-furnished"}
                                         id='unfurnished'
                                         placeholder='Your answer'
                                         className='h-full  placeholder:text-Arambo-Text bg-Arambo-Background rounded-lg'
                                         required
                                         onChange={handleChange}
                                     />
-                                    <label htmlFor="unfurnished" className='text-Arambo-Text'>Unfurnished</label>
+                                    <label htmlFor="unfurnished" className='text-Arambo-Text'>Non-Furnished</label>
                                 </div>
                             </div>
                         </div>

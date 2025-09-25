@@ -3,28 +3,10 @@ import React, { useState } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowRightLong } from "@fortawesome/free-solid-svg-icons"
 import { useCreateProperty } from '@/hooks/useProperties'
-import { PropertyFormData, PropertyCategory } from '@/types/property'
+import { PropertyFormData, PropertyCategory, PropertyAPIPayload, FurnishingStatus } from '@/types/property'
 import { LoadingSpinner } from '@/components/ui/LoadingComponents'
 import { ErrorMessage } from '@/components/ui/ErrorComponents'
 
-// Interface for transformed API payload
-interface PropertyAPIPayload {
-    name: string;
-    email: string;
-    phone: string;
-    propertyName: string;
-    propertyCategory: PropertyCategory;
-    size: number;
-    location: string;
-    bedrooms: number;
-    bathroom: number;
-    baranda: number;
-    category: string;
-    notes: string;
-    firstOwner: boolean;
-    paperworkUpdated: boolean;
-    onLoan: boolean;
-}
 
 const PropertyFormNew = () => {
     const [formData, setFormData] = useState<Partial<PropertyFormData>>({
@@ -65,7 +47,7 @@ const PropertyFormNew = () => {
         } else {
             setFormData((prev) => ({
                 ...prev,
-                [name]: name !== 'notes' ? value.trim() : value, // sanitization like original Form.tsx
+                [name]: name !== 'notes' && name !== 'location' ? value.trim() : value, // sanitization like original Form.tsx
             }))
         }
     }
@@ -192,6 +174,7 @@ const PropertyFormNew = () => {
             bathroom: bathroom!,
             baranda: baranda!,
             category: data.category!.trim(),
+            furnishingStatus: data.category!.trim() as FurnishingStatus,
             notes: data.notes?.trim() || '',
             firstOwner: convertToBoolean(data.firstOwner!),
             paperworkUpdated: convertToBoolean(data.paperworkUpdated!),
@@ -436,7 +419,7 @@ const PropertyFormNew = () => {
                                         placeholder='Your answer'
                                         className='h-full  placeholder:text-Arambo-Text bg-Arambo-Background rounded-lg'
                                         required
-                                        checked={formData.category === "furnished"}
+                                        checked={formData.category === "Furnished"}
                                         onChange={handleChange}
                                     />
                                     <label htmlFor="furnished" className='text-Arambo-Text'>Furnished</label>
@@ -450,7 +433,7 @@ const PropertyFormNew = () => {
                                         placeholder='Your answer'
                                         className='h-full  placeholder:text-Arambo-Text bg-Arambo-Background rounded-lg'
                                         required
-                                        checked={formData.category === "semi-furnished"}
+                                        checked={formData.category === "Semi-Furnished"}
                                         onChange={handleChange}
                                     />
                                     <label htmlFor="semi-furnished" className='text-Arambo-Text'>Semi-furnished</label>
@@ -459,15 +442,15 @@ const PropertyFormNew = () => {
                                     <input
                                         type="radio"
                                         name="category"
-                                        value={"Unfurnished"}
+                                        value={"Non-Furnished"}
                                         id='unfurnished'
                                         placeholder='Your answer'
                                         className='h-full  placeholder:text-Arambo-Text bg-Arambo-Background rounded-lg'
                                         required
-                                        checked={formData.category === "unfurnished"}
+                                        checked={formData.category === "Non-Furnished"}
                                         onChange={handleChange}
                                     />
-                                    <label htmlFor="unfurnished" className='text-Arambo-Text'>Unfurnished</label>
+                                    <label htmlFor="unfurnished" className='text-Arambo-Text'>Non-Furnished</label>
                                 </div>
                             </div>
                         </div>

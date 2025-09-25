@@ -11,23 +11,24 @@ import { PropertyFilters } from "@/types/property";
 interface PropertyFilterProps {
   CategoryOptions: string[];
   onFiltersChange?: (filters: PropertyFilters) => void;
+  categoryType?: 'tenantType' | 'furnishingStatus'; // New prop to determine parameter type
 }
 
-export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFilterProps) {
+export function PropertyFilter({ CategoryOptions, onFiltersChange, categoryType = 'tenantType' }: PropertyFilterProps) {
   const CATEGORY_OPTIONS = CategoryOptions;
-  const { currentFilters, updateFilters, tenantTypes, updateTenantTypes } = useUrlParams();
+  const { currentFilters, updateFilters, categoryValues, updateCategoryValues } = useUrlParams(categoryType);
   
   // Initialize local state only once
   const [localForm, setLocalForm] = useState(() => ({
     location: "",
     minRent: currentFilters.minRent || 10000,
     maxRent: currentFilters.maxRent || 32000,
-    categories: tenantTypes,
+    categories: categoryValues,
     propertyType: currentFilters.propertyType || "",
     area: currentFilters.area || "",
     beds: currentFilters.bedrooms?.toString() || "",
-    bathroom: "",
-    aptType: "",
+    bathroom: currentFilters.bathroom?.toString() || "",
+    apartmentType: currentFilters.apartmentType || "",
     bathroom2: "",
   }));
 
@@ -41,9 +42,11 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
     const filters: Partial<PropertyFilters> = {
       minRent: localForm.minRent !== 10000 ? localForm.minRent : undefined,
       maxRent: localForm.maxRent !== 32000 ? localForm.maxRent : undefined,
-      propertyType: (localForm.propertyType as PropertyFilters['propertyType']) || undefined,
+      propertyType: localForm.propertyType ? (localForm.propertyType as PropertyFilters['propertyType']) : undefined,
       area: localForm.area || undefined,
-      bedrooms: localForm.beds ? parseInt(localForm.beds, 10) : undefined,
+      bedrooms: localForm.beds ? (localForm.beds.includes('+') ? localForm.beds : parseInt(localForm.beds, 10)) : undefined,
+      bathroom: localForm.bathroom ? (localForm.bathroom.includes('+') ? localForm.bathroom : parseInt(localForm.bathroom, 10)) : undefined,
+      apartmentType: localForm.apartmentType || undefined,
     };
     
     // Check if there are actual changes to prevent unnecessary updates
@@ -53,12 +56,21 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       propertyType: currentFilters.propertyType,
       area: currentFilters.area,
       bedrooms: currentFilters.bedrooms,
+      bathroom: currentFilters.bathroom,
+      apartmentType: currentFilters.apartmentType,
     };
 
+    // Better change detection that handles clearing values (undefined vs actual values)
     const hasChanges = Object.keys(filters).some(key => {
       const newValue = filters[key as keyof typeof filters];
       const oldValue = currentValues[key as keyof typeof currentValues];
-      return newValue !== oldValue;
+      
+      // Handle the case where we're clearing a value (setting to undefined)
+      if (newValue === undefined && oldValue !== undefined) return true;
+      if (newValue !== undefined && oldValue === undefined) return true;
+      if (newValue !== oldValue) return true;
+      
+      return false;
     });
 
     if (hasChanges) {
@@ -70,39 +82,42 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
   // Trigger debounced update when other filters change
   useEffect(() => {
     debouncedUpdateOtherFilters();
-  }, [localForm.minRent, localForm.maxRent, localForm.propertyType, localForm.area, localForm.beds, debouncedUpdateOtherFilters]);
+  }, [localForm.minRent, localForm.maxRent, localForm.propertyType, localForm.area, localForm.beds, localForm.bathroom, localForm.apartmentType, debouncedUpdateOtherFilters]);
 
   // Sync local form with URL params when they change externally (simplified logic)
   useEffect(() => {
     setLocalForm(prev => {
       const newFormData = {
-        location: "",
+        location: currentFilters.location || "",
         minRent: currentFilters.minRent || 10000,
         maxRent: currentFilters.maxRent || 32000,
-        categories: tenantTypes,
+        categories: categoryValues,
         propertyType: currentFilters.propertyType || "",
         area: currentFilters.area || "",
         beds: currentFilters.bedrooms?.toString() || "",
-        bathroom: prev.bathroom,
-        aptType: prev.aptType,
+        bathroom: currentFilters.bathroom?.toString() || "",
+        apartmentType: currentFilters.apartmentType || "",
         bathroom2: prev.bathroom2,
       };
 
       // Only update if there's actually a meaningful change
+      const hasLocationChange = prev.location !== newFormData.location;
       const hasRentChange = prev.minRent !== newFormData.minRent || prev.maxRent !== newFormData.maxRent;
       const hasTypeChange = prev.propertyType !== newFormData.propertyType;
       const hasAreaChange = prev.area !== newFormData.area;
       const hasBedsChange = prev.beds !== newFormData.beds;
+      const hasBathroomChange = prev.bathroom !== newFormData.bathroom;
+      const hasApartmentTypeChange = prev.apartmentType !== newFormData.apartmentType;
       const hasCategoriesChange = JSON.stringify(prev.categories) !== JSON.stringify(newFormData.categories);
 
-      if (hasRentChange || hasTypeChange || hasAreaChange || hasBedsChange || hasCategoriesChange) {
+      if (hasLocationChange || hasRentChange || hasTypeChange || hasAreaChange || hasBedsChange || hasBathroomChange || hasApartmentTypeChange || hasCategoriesChange) {
         setSliderValue([newFormData.minRent, newFormData.maxRent]);
         return newFormData;
       }
       
       return prev;
     });
-  }, [currentFilters.minRent, currentFilters.maxRent, currentFilters.propertyType, currentFilters.area, currentFilters.bedrooms, tenantTypes]);
+  }, [currentFilters.location, currentFilters.minRent, currentFilters.maxRent, currentFilters.propertyType, currentFilters.area, currentFilters.bedrooms, currentFilters.bathroom, currentFilters.apartmentType, categoryValues]);
 
   // Generic handleChange for text/select inputs
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -111,6 +126,38 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       ...prev,
       [name]: value,
     }));
+  };
+
+  // Separate handler for location input with debounced API call
+  const debouncedLocationUpdate = useDebouncedCallback((...args: unknown[]) => {
+    const locationValue = args[0] as string;
+    if (locationValue?.trim()) {
+      const locationFilters: Partial<PropertyFilters> = {
+        location: locationValue.trim(),
+      };
+      
+      updateFilters(locationFilters, true);
+      onFiltersChange?.(locationFilters as PropertyFilters);
+    } else {
+      // If location is cleared, update filters to remove location
+      const clearedLocationFilters: Partial<PropertyFilters> = {
+        location: undefined,
+      };
+      
+      updateFilters(clearedLocationFilters, true);
+      onFiltersChange?.(clearedLocationFilters as PropertyFilters);
+    }
+  }, 500);
+
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setLocalForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // Trigger debounced update
+    debouncedLocationUpdate(value);
   };
 
   // Handle slider change
@@ -129,7 +176,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
   const handleCategoryToggle = (category: string) => {
     const isSelected = localForm.categories.includes(category);
     const newCategories = isSelected
-      ? localForm.categories.filter((c) => c !== category)
+      ? localForm.categories.filter((c: string) => c !== category)
       : [...localForm.categories, category];
     
     setLocalForm((prev) => ({
@@ -137,13 +184,30 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
       categories: newCategories,
     }));
     
-    // Update URL with new tenantTypes
-    updateTenantTypes(newCategories);
+    // Update URL with new category values (generic for both tenantType and furnishingStatus)
+    updateCategoryValues(newCategories);
     
-    // Notify parent component
-    onFiltersChange?.({
-      tenantType: newCategories.length === 1 ? newCategories[0] as PropertyFilters['tenantType'] : undefined
-    } as PropertyFilters);
+    // Create a complete filter object for the callback
+    const categoryFilters: Partial<PropertyFilters> = {};
+    
+    // Set the appropriate filter based on categoryType
+    if (categoryType === 'tenantType') {
+      categoryFilters.tenantType = newCategories.length === 1 ? newCategories[0] as PropertyFilters['tenantType'] : undefined;
+    } else if (categoryType === 'furnishingStatus') {
+      categoryFilters.furnishingStatus = newCategories.length === 1 ? newCategories[0] as PropertyFilters['furnishingStatus'] : undefined;
+    }
+    
+    // Include all current filter values to ensure complete state
+    categoryFilters.minRent = localForm.minRent !== 10000 ? localForm.minRent : undefined;
+    categoryFilters.maxRent = localForm.maxRent !== 32000 ? localForm.maxRent : undefined;
+    categoryFilters.propertyType = localForm.propertyType ? (localForm.propertyType as PropertyFilters['propertyType']) : undefined;
+    categoryFilters.area = localForm.area || undefined;
+    categoryFilters.bedrooms = localForm.beds ? (localForm.beds.includes('+') ? localForm.beds : parseInt(localForm.beds, 10)) : undefined;
+    categoryFilters.bathroom = localForm.bathroom ? (localForm.bathroom.includes('+') ? localForm.bathroom : parseInt(localForm.bathroom, 10)) : undefined;
+    categoryFilters.apartmentType = localForm.apartmentType || undefined;
+    
+    // Notify parent component with complete filter state
+    onFiltersChange?.(categoryFilters as PropertyFilters);
   };
 
   return (
@@ -155,7 +219,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
           type="text"
           name="location"
           value={localForm.location}
-          onChange={handleChange}
+          onChange={handleLocationChange}
           placeholder="Search by location..."
           className="flex-1 pl-2 bg-transparent text-Arambo-Black placeholder-Arambo-Text outline-none text-sm sm:text-base min-w-0"
         />
@@ -248,9 +312,56 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
               onChange={handleChange}
               options={[
                 { value: "", label: "Any" },
-                { value: "gulshan", label: "Gulshan" },
-                { value: "banani", label: "Banani" },
-                { value: "dhanmondi", label: "Dhanmondi" },
+                { value: "Aftabnagar", label: "Aftabnagar" },
+                { value: "Banani", label: "Banani" },
+                { value: "Banani DOHs", label: "Banani DOHs" },
+                { value: "Banashree", label: "Banashree" },
+                { value: "Banasree", label: "Banasree" },
+                { value: "Baridhara DOHs", label: "Baridhara DOHs" },
+                { value: "Baridhara J Block", label: "Baridhara J Block" },
+                { value: "Bashundhara Residential", label: "Bashundhara Residential" },
+                { value: "Dhanmondi", label: "Dhanmondi" },
+                { value: "DIT & Merul Badda", label: "DIT & Merul Badda" },
+                { value: "Greenroad", label: "Greenroad" },
+                { value: "Gudaraghat", label: "Gudaraghat" },
+                { value: "Gulshan 1", label: "Gulshan 1" },
+                { value: "Gulshan 2", label: "Gulshan 2" },
+                { value: "Lalmatia", label: "Lalmatia" },
+                { value: "Middle Badda", label: "Middle Badda" },
+                { value: "Mirpur DOHs", label: "Mirpur DOHs" },
+                { value: "Mohakhali Amtoli", label: "Mohakhali Amtoli" },
+                { value: "Mohakhali DOHs", label: "Mohakhali DOHs" },
+                { value: "Mohakhali TB Gate", label: "Mohakhali TB Gate" },
+                { value: "Mohakhali Wireless", label: "Mohakhali Wireless" },
+                { value: "Mohanagar Project", label: "Mohanagar Project" },
+                { value: "Niketan", label: "Niketan" },
+                { value: "Nikunja 1", label: "Nikunja 1" },
+                { value: "Nikunja 2", label: "Nikunja 2" },
+                { value: "North Badda", label: "North Badda" },
+                { value: "Notun Bazar", label: "Notun Bazar" },
+                { value: "Shahjadpur Beside & near Suvastu", label: "Shahjadpur Beside & near Suvastu" },
+                { value: "Shahjadpur Lakeside", label: "Shahjadpur Lakeside" },
+                { value: "Shanti Niketan", label: "Shanti Niketan" },
+                { value: "South Badda", label: "South Badda" },
+                { value: "South Banasree", label: "South Banasree" },
+                { value: "Uttara Sector 1", label: "Uttara Sector 1" },
+                { value: "Uttara Sector 2", label: "Uttara Sector 2" },
+                { value: "Uttara Sector 3", label: "Uttara Sector 3" },
+                { value: "Uttara Sector 4", label: "Uttara Sector 4" },
+                { value: "Uttara Sector 5", label: "Uttara Sector 5" },
+                { value: "Uttara Sector 6", label: "Uttara Sector 6" },
+                { value: "Uttara Sector 7", label: "Uttara Sector 7" },
+                { value: "Uttara Sector 8", label: "Uttara Sector 8" },
+                { value: "Uttara Sector 9", label: "Uttara Sector 9" },
+                { value: "Uttara Sector 10", label: "Uttara Sector 10" },
+                { value: "Uttara Sector 11", label: "Uttara Sector 11" },
+                { value: "Uttara Sector 12", label: "Uttara Sector 12" },
+                { value: "Uttara Sector 13", label: "Uttara Sector 13" },
+                { value: "Uttara Sector 14", label: "Uttara Sector 14" },
+                { value: "Uttara Sector 15", label: "Uttara Sector 15" },
+                { value: "Uttara Sector 16", label: "Uttara Sector 16" },
+                { value: "Uttara Sector 17", label: "Uttara Sector 17" },
+                { value: "Uttara Sector 18", label: "Uttara Sector 18" },
               ]}
             />
           </div>
@@ -267,12 +378,12 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
                 { value: "1", label: "1 Bed" },
                 { value: "2", label: "2 Beds" },
                 { value: "3", label: "3 Beds" },
-                { value: "4", label: "4+ Beds" },
+                { value: "4+", label: "4+ Beds" },
               ]}
             />
 
             <FormSelect
-              label="Bathroom"
+              label="Bathrooms"
               name="bathroom"
               value={localForm.bathroom}
               onChange={handleChange}
@@ -280,7 +391,7 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
                 { value: "", label: "Any" },
                 { value: "1", label: "1 Bath" },
                 { value: "2", label: "2 Baths" },
-                { value: "3", label: "3+ Baths" },
+                { value: "3+", label: "3+ Baths" },
               ]}
             />
           </div>
@@ -289,19 +400,19 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange }: PropertyFil
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <FormSelect
               label="Apt. Type"
-              name="aptType"
-              value={localForm.aptType}
+              name="apartmentType"
+              value={localForm.apartmentType}
               onChange={handleChange}
               options={[
                 { value: "", label: "Any" },
                 { value: "studio", label: "Studio" },
-                { value: "dupl  ex", label: "Duplex" },
+                { value: "duplex", label: "Duplex" },
                 { value: "penthouse", label: "Penthouse" },
               ]}
             />
 
             <FormSelect
-              label="Bathroom"
+              label="Bathrooms"
               name="bathroom2"
               value={localForm.bathroom2}
               onChange={handleChange}

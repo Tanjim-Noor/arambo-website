@@ -40,8 +40,9 @@ export interface Property {
   name: string;                    // Owner/contact name
   email: string;                   // Contact email
   phone: string;                   // Contact phone
+  listingType: string;             // Type of property
   propertyName: string;            // Property title
-  propertyType: string;     // Type of property
+  propertyType: string;            // Type of property
   propertyCategory: PropertyCategory;      // Residential, Commercial, etc.
   size: number;                    // Size in square feet
   location: string;                // Property location
@@ -75,6 +76,17 @@ export interface Property {
   cleanHygieneScore?: number;    // 1-10 rating
   sunlightScore?: number;        // 1-10 rating
   bathroomConditionsScore?: number; // 1-10 rating
+
+  // Facility boolean fields
+  cctv?: boolean;                // CCTV surveillance
+  communityHall?: boolean;       // Community hall available
+  gym?: boolean;                 // Gym facility
+  masjid?: boolean;              // Masjid/mosque available
+  parking?: boolean;             // Parking space available
+  petsAllowed?: boolean;         // Pets allowed
+  swimmingPool?: boolean;        // Swimming pool
+  trainedGuard?: boolean;        // Trained security guard
+
   coverImage?: string;           // Cover image URL
   otherImages?: string[];        // Additional image URLs
 }
@@ -118,6 +130,17 @@ export interface PropertyFormData {
   cleanHygieneScore?: number;
   sunlightScore?: number;
   bathroomConditionsScore?: number;
+
+  // Facility boolean fields
+  cctv?: boolean;
+  communityHall?: boolean;
+  gym?: boolean;
+  masjid?: boolean;
+  parking?: boolean;
+  petsAllowed?: boolean;
+  swimmingPool?: boolean;
+  trainedGuard?: boolean;
+
   coverImage?: string;
   otherImages?: string[];
 }
@@ -160,6 +183,17 @@ export interface PropertyAPIPayload {
   cleanHygieneScore?: number;
   sunlightScore?: number;
   bathroomConditionsScore?: number;
+
+  // Facility boolean fields
+  cctv?: boolean;
+  communityHall?: boolean;
+  gym?: boolean;
+  masjid?: boolean;
+  parking?: boolean;
+  petsAllowed?: boolean;
+  swimmingPool?: boolean;
+  trainedGuard?: boolean;
+
   coverImage?: string;
   otherImages?: string[];
 }
@@ -189,7 +223,8 @@ export interface PropertyFilters {
   limit?: number;
   category?: Category;
   propertyType?: PropertyType;
-  bedrooms?: number;
+  bedrooms?: number | string;  // Allow strings like "4+" for 4+ bedrooms
+  bathroom?: number | string;  // Allow strings like "3+" for 3+ bathrooms
   minSize?: number;
   maxSize?: number;
   location?: string;
@@ -206,6 +241,8 @@ export interface PropertyFilters {
   houseId?: string;
   listingId?: string;
   isConfirmed?: boolean;
+  apartmentType?: string;
+  listingType?: string;
 }
 
 // Property statistics response

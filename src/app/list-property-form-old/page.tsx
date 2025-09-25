@@ -1,5 +1,5 @@
 
-import PropertyFormNew from "@/components/list-property/FormNew";
+import Form from "@/components/list-property/Form"
 
 const page = () => {
     return (
@@ -8,7 +8,7 @@ const page = () => {
                 <h1 className="h1 text-Arambo-White">List Your Property</h1>
             </div>
             <div className="py-20 bg-Arambo-Background flex justify-center items-center ">
-                <PropertyFormNew />
+                <Form />
             </div>
         </div>
     )

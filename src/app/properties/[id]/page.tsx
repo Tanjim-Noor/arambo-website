@@ -7,10 +7,8 @@ import { Property } from '@/types/property';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import PropertySingleSwiper from "@/components/PropertySingleSwiper";
+import PropertySingleSwiperAPI from "@/components/PropertySingleSwiperAPI";
 import PropertyDetailsCard from "@/components/PropertyDetailsContent";
-import EstimateHistory from "@/components/EstimateHistory";
-import NeighbourhoodAmenities from "@/components/NeighbourhoodAmenities";
 import { PropertyCard } from "@/components/PropertyCard";
 
 interface PropertyDetailsContentProps {
@@ -61,7 +59,7 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
   return (
     <>
       <section className="w-full py-4 sm:py-6 lg:py-8">
-        <PropertySingleSwiper />
+        <PropertySingleSwiperAPI property={property} />
       </section>
 
       <section className="mt-6 sm:mt-8 lg:mt-10 max-w-[1222px] mx-auto px-3 sm:px-4 lg:px-6">
@@ -72,10 +70,10 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
                 <div className="flex items-center gap-2">
                   <Image src="/about/location.svg" alt="" width={16} height={16} />
-                  <p className="p-base text-Arambo-Text">{property.location}</p>
+                  <p className="p-base text-Arambo-Text">{property.area}</p>
                 </div>
                 <div className="py-2 sm:py-2.5 px-3 sm:px-[15px] rounded-full bg-Arambo-Accent/10 text-Arambo-Accent caption-14 font-medium w-fit">
-                  For {property.category}
+                  {property.listingType}
                 </div>
               </div>
               <h3 className="h3">{property.propertyName}</h3>
@@ -120,8 +118,8 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
                     className="p-2 sm:p-3 bg-Arambo-White rounded-lg flex-shrink-0"
                     src="/property-single/area.svg"
                     alt=""
-                    width={40}
-                    height={40}
+                    width={48}
+                    height={48}
                   />
                   <p className="text-Arambo-Accent font-semibold text-lg sm:text-xl">{property.size} sqft</p>
                 </div>
@@ -194,13 +192,28 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
                         {property.totalFloor && <li>Floor: {property.floor} of {property.totalFloor}</li>}
                       </ul>
                     </div>
+                    
+                    <div>
+                      <h3 className="label-16 mb-2 font-medium">Facilities</h3>
+                      <ul className="space-y-1 sm:space-y-2 list-disc list-inside label-16">
+                        {property.cctv && <li>CCTV</li>}
+                        {property.communityHall && <li>Community Hall</li>}
+                        {property.gym && <li>Gym</li>}
+                        {property.masjid && <li>Masjid</li>}
+                        {property.parking && <li>Parking</li>}
+                        {property.petsAllowed && <li>Pets Allowed</li>}
+                        {property.swimmingPool && <li>Swimming Pool</li>}
+                        {property.trainedGuard && <li>Trained Security</li>}
+                      </ul>
+                    </div>
+
                     {(property.cleanHygieneScore || property.sunlightScore || property.bathroomConditionsScore) && (
                       <div>
-                        <h3 className="label-16 mb-2">Quality Ratings</h3>
+                        <h3 className="label-16 mb-2 font-medium">Quality Ratings</h3>
                         <ul className="space-y-1 sm:space-y-2 list-disc list-inside label-16">
-                          {property.cleanHygieneScore && <li>Cleanliness: {property.cleanHygieneScore}/5</li>}
-                          {property.sunlightScore && <li>Sunlight: {property.sunlightScore}/5</li>}
-                          {property.bathroomConditionsScore && <li>Bathroom Quality: {property.bathroomConditionsScore}/5</li>}
+                          {property.cleanHygieneScore && <li>Cleanliness: {property.cleanHygieneScore}/10</li>}
+                          {property.sunlightScore && <li>Sunlight: {property.sunlightScore}/10</li>}
+                          {property.bathroomConditionsScore && <li>Bathroom Quality: {property.bathroomConditionsScore}/10</li>}
                         </ul>
                       </div>
                     )}
@@ -209,7 +222,7 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
                 <div className="flex-1">
                   <div className="flex flex-col gap-3 sm:gap-4">
                     <div>
-                      <h3 className="label-16 mb-2">Property Details</h3>
+                      <h3 className="label-16 mb-2 font-medium">Property Details</h3>
                       <ul className="space-y-1 sm:space-y-2 list-disc list-inside label-16">
                         <li>Floor: {property.floor || "Not specified"}</li>
                         <li>Status: {property.inventoryStatus || "Available"}</li>

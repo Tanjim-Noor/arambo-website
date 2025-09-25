@@ -6,12 +6,28 @@ import { useState } from "react";
 
 const ActionButtonContainer = ({
   defaultSelected,
+  onSelectionChange,
+  initialListingType,
 }: {
   defaultSelected: "buy" | "rent";
+  onSelectionChange?: (selection: "rent" | "buy") => void;
+  initialListingType?: string;
 }) => {
-  const [activeButton, setActiveButton] = useState<"rent" | "buy">(
-    defaultSelected
-  );
+  // Determine initial state based on URL params or default
+  const getInitialState = () => {
+    if (initialListingType === "For Rent") return "rent";
+    if (initialListingType === "For Sale") return "buy";
+    return defaultSelected;
+  };
+
+  const [activeButton, setActiveButton] = useState<"rent" | "buy">(getInitialState());
+
+  // Only handle clicks, don't sync with external changes to prevent loops
+  const handleClick = (selection: "rent" | "buy") => {
+    setActiveButton(selection);
+    onSelectionChange?.(selection);
+  };
+
   return (
     <>
       <ActionButton
@@ -19,7 +35,7 @@ const ActionButtonContainer = ({
         GoToActionIcon
         startIcon={<Home size={24} />}
         isActive={activeButton === "rent"}
-        onClick={() => setActiveButton("rent")}
+        onClick={() => handleClick("rent")}
       />
 
       {/* BUY button */}
@@ -27,7 +43,7 @@ const ActionButtonContainer = ({
         label="BUY"
         startIcon={<Home size={24} />}
         isActive={activeButton === "buy"}
-        onClick={() => setActiveButton("buy")}
+        onClick={() => handleClick("buy")}
       />
     </>
   );
