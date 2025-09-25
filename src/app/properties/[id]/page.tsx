@@ -7,10 +7,8 @@ import { Property } from '@/types/property';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import PropertySingleSwiper from "@/components/PropertySingleSwiper";
+import PropertySingleSwiperAPI from "@/components/PropertySingleSwiperAPI";
 import PropertyDetailsCard from "@/components/PropertyDetailsContent";
-import EstimateHistory from "@/components/EstimateHistory";
-import NeighbourhoodAmenities from "@/components/NeighbourhoodAmenities";
 import { PropertyCard } from "@/components/PropertyCard";
 
 interface PropertyDetailsContentProps {
@@ -61,7 +59,7 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
   return (
     <>
       <section className="w-full py-4 sm:py-6 lg:py-8">
-        <PropertySingleSwiper />
+        <PropertySingleSwiperAPI property={property} />
       </section>
 
       <section className="mt-6 sm:mt-8 lg:mt-10 max-w-[1222px] mx-auto px-3 sm:px-4 lg:px-6">
@@ -72,10 +70,10 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
                 <div className="flex items-center gap-2">
                   <Image src="/about/location.svg" alt="" width={16} height={16} />
-                  <p className="p-base text-Arambo-Text">{property.location}</p>
+                  <p className="p-base text-Arambo-Text">{property.area}</p>
                 </div>
                 <div className="py-2 sm:py-2.5 px-3 sm:px-[15px] rounded-full bg-Arambo-Accent/10 text-Arambo-Accent caption-14 font-medium w-fit">
-                  For {property.category}
+                  {property.listingType}
                 </div>
               </div>
               <h3 className="h3">{property.propertyName}</h3>
@@ -120,8 +118,8 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
                     className="p-2 sm:p-3 bg-Arambo-White rounded-lg flex-shrink-0"
                     src="/property-single/area.svg"
                     alt=""
-                    width={40}
-                    height={40}
+                    width={48}
+                    height={48}
                   />
                   <p className="text-Arambo-Accent font-semibold text-lg sm:text-xl">{property.size} sqft</p>
                 </div>

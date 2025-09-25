@@ -1,63 +1,39 @@
 import Link from "next/link";
-import { Property, LegacyProperty } from "@/types/property";
+import { Property } from "@/types/property";
 
 interface PropertyCardProps {
-  property: Property | LegacyProperty;
+  property: Property;
 }
 
-// Type guard to check if property is new API format
-const isNewProperty = (property: Property | LegacyProperty): property is Property => {
-  return typeof property.id === 'string';
-};
-
 // Helper function to format price
-const formatPrice = (price: number | string): string => {
-  if (typeof price === 'string') {
-    return price; // Legacy format
-  }
-  
+const formatPrice = (price: number): string => {
   // Format number with commas
   const formattedPrice = price.toLocaleString();
   
-  // Add currency symbol without category context
+  // Add currency symbol
   return `৳${formattedPrice}`;
 };
 
 // Helper function to get property link
-const getPropertyLink = (property: Property | LegacyProperty): string => {
-  if (isNewProperty(property)) {
-    return `/properties/${property.id}`;
-  }
-  return `/property-single?id=${property.id}`;
+const getPropertyLink = (property: Property): string => {
+  return `/properties/${property.id}`;
 };
 
 export function PropertyCard({ property }: PropertyCardProps) {
-  // Extract common properties with fallbacks
-  const image = isNewProperty(property) 
-    ? property.coverImage || "/placeholder.svg?height=302&width=396&query=modern apartment interior"
-    : property.image || "/placeholder.svg?height=302&width=396&query=modern apartment interior";
+  // Extract properties
+  const image = property.coverImage || "/placeholder.svg?height=302&width=396&query=modern apartment interior";
   
-  const price = isNewProperty(property) 
-    ? formatPrice(property.rent || 0)
-    : property.price;
+  const price = formatPrice(property.rent || 0);
   
-  const propertyType = isNewProperty(property) 
-    ? property.propertyType 
-    : property.type;
+  const propertyType = property.listingType;
+
+  const area = property.area;
+
+  const beds = property.bedrooms;
   
-  const location = property.location;
+  const baths = property.bathroom;
   
-  const beds = isNewProperty(property) 
-    ? property.bedrooms 
-    : property.beds;
-  
-  const baths = isNewProperty(property) 
-    ? property.bathroom 
-    : property.baths;
-  
-  const sqft = isNewProperty(property) 
-    ? property.size 
-    : property.sqft;
+  const sqft = property.size;
 
   return (
     <Link
@@ -67,7 +43,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
       <div className="relative overflow-hidden transition-transform">
         <img
           src={image}
-          alt={isNewProperty(property) ? property.propertyName : "Property"}
+          alt={property.propertyName}
           className="w-full group-hover:scale-105 transition-all aspect-[396/302] object-cover"
         />
       </div>
@@ -77,7 +53,6 @@ export function PropertyCard({ property }: PropertyCardProps) {
         <div className="mb-3 sm:mb-4">
           <div className="flex justify-between items-start mb-2 sm:mb-3 gap-2">
             <div className="h4 font-bold text-Arambo-Accent min-w-0 flex-1">
-              {!price.includes('৳') && <span className="font-bold">৳ </span>}
               {price}
             </div>
             <div className="text-xs sm:text-sm border border-Arambo-Border rounded-full text-Arambo-Text bg-gray-50 px-2 sm:px-3 py-1 whitespace-nowrap capitalize">
@@ -92,8 +67,8 @@ export function PropertyCard({ property }: PropertyCardProps) {
               alt=""
               className="w-4 h-4 flex-shrink-0"
             />
-            <span className="text-Arambo-Text body-sm sm:body-md min-w-0" title={location}>
-              {location}
+            <span className="text-Arambo-Text body-sm sm:body-md min-w-0" title={area}>
+              {area}
             </span>
           </div>
         </div>
@@ -131,20 +106,6 @@ export function PropertyCard({ property }: PropertyCardProps) {
             </span>
           </div>
         </div>
-
-        {/* Additional info for new properties */}
-        {isNewProperty(property) && (
-          <div className="mt-3 pt-3 border-t border-gray-100">
-            <div className="flex items-center justify-between text-xs text-gray-600">
-              {property.area && (
-                <span className="truncate">📍 {property.area}</span>
-              )}
-              {property.yearOfConstruction && (
-                <span>🏗️ {property.yearOfConstruction}</span>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </Link>
   );

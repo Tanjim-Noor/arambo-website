@@ -40,8 +40,9 @@ export interface Property {
   name: string;                    // Owner/contact name
   email: string;                   // Contact email
   phone: string;                   // Contact phone
+  listingType: string;             // Type of property
   propertyName: string;            // Property title
-  propertyType: string;     // Type of property
+  propertyType: string;            // Type of property
   propertyCategory: PropertyCategory;      // Residential, Commercial, etc.
   size: number;                    // Size in square feet
   location: string;                // Property location
