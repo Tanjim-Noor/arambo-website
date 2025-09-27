@@ -9,6 +9,17 @@ import {
   ApiError,
   PropertyType
 } from '@/types/property';
+import { 
+  Truck, 
+  TruckListResponse, 
+  TruckApiError 
+} from '@/types/truck';
+import { 
+  Trip, 
+  CreateTripPayload, 
+  TripListResponse, 
+  TripApiError 
+} from '@/types/trip';
 
 // Create axios instance with default configuration
 export const apiClient = axios.create({
@@ -119,25 +130,128 @@ export const propertyService = {
   }
 };
 
+// Truck services
+export const truckService = {
+  // Get all trucks
+  async getTrucks(): Promise<Truck[]> {
+    const response = await apiClient.get<Truck[]>('/trucks/');
+    return response.data;
+  },
+
+  // Get a single truck by ID (URL parameter)
+  async getTruckById(id: string): Promise<Truck> {
+    const response = await apiClient.get<Truck>(`/trucks/${id}`);
+    return response.data;
+  },
+
+  // Get a single truck by ID (request body) - alternative endpoint
+  async getTruckByIdFromBody(id: string): Promise<Truck> {
+    const response = await apiClient.post<Truck>('/trucks/get-by-id', { id });
+    return response.data;
+  },
+
+  // Create a new truck (admin function)
+  async createTruck(truckData: Omit<Truck, 'id' | 'createdAt' | 'updatedAt'>): Promise<Truck> {
+    const response = await apiClient.post<Truck>('/trucks', truckData);
+    return response.data;
+  },
+
+  // Update an existing truck (admin function)
+  async updateTruck(id: string, truckData: Partial<Omit<Truck, 'id' | 'createdAt' | 'updatedAt'>>): Promise<Truck> {
+    const response = await apiClient.put<Truck>(`/trucks/${id}`, truckData);
+    return response.data;
+  },
+
+  // Delete a truck (admin function)
+  async deleteTruck(id: string): Promise<void> {
+    await apiClient.delete(`/trucks/${id}`);
+  }
+};
+
+// Trip services
+export const tripService = {
+  // Create a new trip (booking)
+  async createTrip(tripData: CreateTripPayload): Promise<Trip> {
+    const response = await apiClient.post<Trip>('/trips', tripData);
+    return response.data;
+  },
+
+  // Get all trips
+  async getTrips(): Promise<Trip[]> {
+    const response = await apiClient.get<Trip[]>('/trips');
+    return response.data;
+  },
+
+  // Get a single trip by ID
+  async getTripById(id: string): Promise<Trip> {
+    const response = await apiClient.get<Trip>(`/trips/${id}`);
+    return response.data;
+  },
+
+  // Get trips by truck ID
+  async getTripsByTruck(truckId: string): Promise<Trip[]> {
+    const response = await apiClient.get<Trip[]>(`/trips/truck/${truckId}`);
+    return response.data;
+  },
+
+  // Get trips by date
+  async getTripsByDate(date: string): Promise<Trip[]> {
+    const response = await apiClient.get<Trip[]>(`/trips/date?date=${date}`);
+    return response.data;
+  },
+
+  // Get trips by time slot
+  async getTripsByTimeSlot(timeSlot: string): Promise<Trip[]> {
+    const response = await apiClient.get<Trip[]>(`/trips/timeslot/${timeSlot}`);
+    return response.data;
+  },
+
+  // Update an existing trip
+  async updateTrip(id: string, tripData: Partial<CreateTripPayload>): Promise<Trip> {
+    const response = await apiClient.put<Trip>(`/trips/${id}`, tripData);
+    return response.data;
+  },
+
+  // Delete a trip
+  async deleteTrip(id: string): Promise<void> {
+    await apiClient.delete(`/trips/${id}`);
+  }
+};
+
 // SWR key generators for consistent caching
 export const swrKeys = {
   properties: (filters?: PropertyFilters) => 
     filters ? ['properties', filters] : ['properties'],
   property: (id: string) => ['property', id],
   stats: () => ['properties', 'stats'],
-  health: () => ['health']
+  health: () => ['health'],
+  trucks: () => ['trucks'],
+  truck: (id: string) => ['truck', id],
+  trips: () => ['trips'],
+  trip: (id: string) => ['trip', id],
+  tripsByTruck: (truckId: string) => ['trips', 'truck', truckId],
+  tripsByDate: (date: string) => ['trips', 'date', date],
+  tripsByTimeSlot: (timeSlot: string) => ['trips', 'timeslot', timeSlot]
 };
 
 // Error handling utilities
 export const handleApiError = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError<ApiError>;
+    const axiosError = error as AxiosError<any>;
     
-    // Handle validation errors
+    // Handle your backend's error format
+    if (axiosError.response?.data?.error) {
+      return axiosError.response.data.error;
+    }
+    
+    // Handle validation errors with details array
     if (axiosError.response?.data?.details) {
-      return axiosError.response.data.details
-        .map(detail => detail.message)
-        .join(', ');
+      if (Array.isArray(axiosError.response.data.details)) {
+        return axiosError.response.data.details
+          .map((detail: any) => detail.message || detail)
+          .join(', ');
+      }
+      return String(axiosError.response.data.details);
     }
     
     // Handle general API errors
