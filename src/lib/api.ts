@@ -20,6 +20,12 @@ import {
   TripListResponse, 
   TripApiError 
 } from '@/types/trip';
+import { 
+  Furniture, 
+  FurnitureResponse, 
+  FurnituresResponse, 
+  CreateFurnitureRequest 
+} from '@/types/furniture';
 
 // Create axios instance with default configuration
 export const apiClient = axios.create({
@@ -283,4 +289,117 @@ export const handleApiError = (error: unknown): string => {
   }
   
   return 'An unexpected error occurred.';
+};
+
+// Furniture Service
+export const furnitureService = {
+  /**
+   * Get all furniture requests
+   */
+  async getFurnitureRequests(): Promise<Furniture[]> {
+    try {
+      const response = await apiClient.get('/furniture');
+      
+      // Your backend returns {data: [...]}
+      if (response.data && response.data.data) {
+        return response.data.data;
+      }
+      
+      throw new Error('Failed to fetch furniture requests');
+    } catch (error) {
+      console.error('Error fetching furniture requests:', error);
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  /**
+   * Create a new furniture request
+   */
+  async createFurnitureRequest(furnitureData: CreateFurnitureRequest): Promise<Furniture> {
+    try {
+      // Clean the data - remove empty strings and undefined values
+      const cleanData = Object.fromEntries(
+        Object.entries(furnitureData).filter(([_, value]) => 
+          value !== undefined && value !== null && value !== ''
+        )
+      );
+
+      console.log('Sending furniture data to backend:', cleanData);
+      
+      const response = await apiClient.post('/furniture', cleanData);
+      
+      console.log('Backend response:', response.data);
+      
+      // Your backend returns the furniture object directly
+      if (response.data && (response.data._id || response.data.id)) {
+        return response.data;
+      }
+      
+      throw new Error('Invalid response from server');
+    } catch (error: any) {
+      console.error('Error creating furniture request:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  /**
+   * Get a specific furniture request by ID
+   */
+  async getFurnitureRequest(id: string): Promise<Furniture> {
+    try {
+      const response = await apiClient.get<FurnitureResponse>(`/furniture/${id}`);
+      
+      if (response.data.success) {
+        return response.data.data;
+      }
+      
+      throw new Error(response.data.message || 'Failed to fetch furniture request');
+    } catch (error) {
+      console.error(`Error fetching furniture request ${id}:`, error);
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  /**
+   * Update a furniture request
+   */
+  async updateFurnitureRequest(id: string, updateData: Partial<CreateFurnitureRequest>): Promise<Furniture> {
+    try {
+      // Clean the data - remove empty strings and undefined values
+      const cleanData = Object.fromEntries(
+        Object.entries(updateData).filter(([_, value]) => 
+          value !== undefined && value !== null && value !== ''
+        )
+      );
+
+      const response = await apiClient.put<FurnitureResponse>(`/furniture/${id}`, cleanData);
+      
+      if (response.data.success) {
+        return response.data.data;
+      }
+      
+      throw new Error(response.data.message || 'Failed to update furniture request');
+    } catch (error) {
+      console.error(`Error updating furniture request ${id}:`, error);
+      throw new Error(handleApiError(error));
+    }
+  },
+
+  /**
+   * Delete a furniture request
+   */
+  async deleteFurnitureRequest(id: string): Promise<void> {
+    try {
+      const response = await apiClient.delete(`/furniture/${id}`);
+      
+      if (response.status !== 200 && response.status !== 204) {
+        throw new Error('Failed to delete furniture request');
+      }
+    } catch (error) {
+      console.error(`Error deleting furniture request ${id}:`, error);
+      throw new Error(handleApiError(error));
+    }
+  }
 };
