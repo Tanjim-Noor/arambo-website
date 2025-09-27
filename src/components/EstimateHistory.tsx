@@ -4,23 +4,23 @@ import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
 
 const chartData = [
-  { period: "5y", value: 15, label: "5y" },
-  { period: "3y", value: 25, label: "3y" },
-  { period: "1y", value: 35, label: "1y" },
-  { period: "6m", value: 45, label: "6m" },
-  { period: "1m", value: 50, label: "1m" },
-  { period: "current", value: 65, label: "Current" },
+  { period: "2020", value: 45, label: "2020" },
+  { period: "2021", value: 48, label: "2021" },
+  { period: "2022", value: 52, label: "2022" },
+  { period: "2023", value: 55, label: "2023" },
+  { period: "2024", value: 60, label: "2024" },
+  { period: "2025", value: 65, label: "2025" },
 ];
 
-const monthlyEstimates = [
-  { month: "Q1", value: "৳52,000,000" },
-  { month: "Q2", value: "৳52,000,000" },
-  { month: "Q3", value: "৳52,000,000" },
-  { month: "Q4", value: "৳52,000,000" },
+const yearlyEstimates = [
+  { year: "2022", value: "৳52,000,000" },
+  { year: "2023", value: "৳55,000,000" },
+  { year: "2024", value: "৳60,000,000" },
+  { year: "2025", value: "৳65,000,000" },
 ];
 
 export default function EstimateHistory() {
-  const [selected, setSelected] = useState("Jul 2025");
+  const [selected, setSelected] = useState("2025");
 
   return (
     <div className="mt-6 sm:mt-8 bg-Arambo-White rounded-xl">
@@ -28,39 +28,39 @@ export default function EstimateHistory() {
         {/* Header */}
         <div className="flex items-center py-3 sm:py-4 px-4 sm:px-6 border-b border-Arambo-Border justify-end">
           <select className="flex cursor-pointer items-center outline-none gap-2 bg-white px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm sm:text-base">
-            <option value="Jul 2025" className="label-16">
-              Jul 2025
+            <option value="2025" className="label-16">
+              2025
             </option>
-            <option value="Aug 2025" className="label-16">
-              Aug 2025
+            <option value="2024" className="label-16">
+              2024
             </option>
-            <option value="Sep 2025" className="label-16">
-              Sep 2025
+            <option value="2023" className="label-16">
+              2023
             </option>
-            <option value="Oct 2025" className="label-16">
-              Oct 2025
+            <option value="2022" className="label-16">
+              2022
             </option>
-            <option value="Nov 2025" className="label-16">
-              Nov 2025
+            <option value="2021" className="label-16">
+              2021
             </option>
           </select>
         </div>
 
         <div className="flex flex-col lg:flex-row items-stretch justify-between p-2 sm:p-3 gap-4">
-          {/* Left Side - Monthly Estimates */}
+          {/* Left Side - Yearly Estimates */}
           <div className="flex  flex-col px-3 sm:px-5 pt-3 sm:pt-5 rounded-xl min-w-[285px] pb-2 bg-Arambo-Background mb-4 lg:mb-0">
             <p className="text-sm sm:text-base text-center font-medium mb-3 sm:mb-5">
-              Home value:
+              Property value by year:
             </p>
 
             <div className="flex flex-col">
-              {monthlyEstimates.map((estimate, index) => (
+              {yearlyEstimates.map((estimate, index) => (
                 <div
                   key={index}
                   className="flex items-center justify-between py-2 sm:py-3 border-b border-Arambo-Border"
                 >
                   <span className="text-gray-900 font-medium text-sm sm:text-base">
-                    {estimate.month}
+                    {estimate.year}
                   </span>
                   <span className="text-Arambo-Accent font-semibold text-sm sm:text-base">
                     {estimate.value}

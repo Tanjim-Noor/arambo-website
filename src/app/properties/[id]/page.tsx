@@ -10,6 +10,7 @@ import { useParams } from 'next/navigation';
 import PropertySingleSwiperAPI from "@/components/PropertySingleSwiperAPI";
 import PropertyDetailsCard from "@/components/PropertyDetailsContent";
 import { PropertyCard } from "@/components/PropertyCard";
+import EstimateHistory from '@/components/EstimateHistory';
 
 interface PropertyDetailsContentProps {
   propertyId: string;
@@ -257,23 +258,14 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
             </div>
 
             {/* Estimate History */}
-            {/*
+            
             <div>
               <h4 className="mb-3 sm:mb-4 text-Arambo-Black h4">
-                Estimate History
+                Property Value History
               </h4>
               <EstimateHistory />
             </div>
-
-            {/* Valuation Factor */}
-            {/*
-            <div>
-              <h4 className="mb-3 sm:mb-4 text-Arambo-Black h4">
-                Valuation Factor
-              </h4>
-              <NeighbourhoodAmenities />
-            </div>
-            */}
+           
           </div>
 
           {/* Right Agent Card */}
