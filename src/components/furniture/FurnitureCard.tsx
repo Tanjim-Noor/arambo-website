@@ -31,9 +31,24 @@ const FurnitureCard = () => {
                     `}
                 >
                     <div className=" grid grid-cols-1 gap-6">
-                        <BigButton label='EMI Plan' content='Pay over time with easy monthly installments.' />
-                        <BigButton label='Lease' content='Rent for a flexible term, no ownership needed.' />
-                        <BigButton label='Instant Pay' content='Pay upfront and get everything delivered.' />
+                        <BigButton 
+                            label='EMI Plan' 
+                            content='Pay over time with easy monthly installments.'
+                            furnitureType='Commercial Furniture'
+                            paymentType='EMI Plan'
+                        />
+                        <BigButton 
+                            label='Lease' 
+                            content='Rent for a flexible term, no ownership needed.'
+                            furnitureType='Commercial Furniture'
+                            paymentType='Lease'
+                        />
+                        <BigButton 
+                            label='Instant Pay' 
+                            content='Pay upfront and get everything delivered.'
+                            furnitureType='Commercial Furniture'
+                            paymentType='Instant Pay'
+                        />
                     </div>
                 </div>
 
@@ -44,9 +59,24 @@ const FurnitureCard = () => {
                     `}
                 >
                     <div className="space-y-6">
-                        <BigButton label='EMI Plan' content='Pay over time with easy monthly installments.' />
-                        <BigButton label='New Furniture' content='Rent for a flexible term, no ownership needed.' />
-                        <BigButton label='Used/2nd Hand Furniture' content='Pay upfront and get everything delivered.' />
+                        <BigButton 
+                            label='EMI Plan' 
+                            content='Pay over time with easy monthly installments.'
+                            furnitureType='Residential Furniture'
+                            paymentType='EMI Plan'
+                        />
+                        <BigButton 
+                            label='New Furniture' 
+                            content='Get brand new furniture delivered.'
+                            furnitureType='Residential Furniture'
+                            furnitureCondition='New Furniture'
+                        />
+                        <BigButton 
+                            label='Used/2nd Hand Furniture' 
+                            content='Affordable pre-owned furniture options.'
+                            furnitureType='Residential Furniture'
+                            furnitureCondition='Used Furniture'
+                        />
                     </div>
                 </div>
             </div>
