@@ -263,20 +263,19 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
             <div className="bg-Arambo-White rounded-xl shadow border flex flex-col gap-8 border-Arambo-Border p-4 sm:px-6 sm:py-8 justify-between h-full">
               {/* Agent Profile */}
               <div className="flex items-center gap-5">
-                <Image
-                  src="/property-single/agent.png"
-                  alt="Agent"
-                  className="w-22 h-22 rounded-full object-cover object-top"
-                  width={88}
-                  height={88}
-                />
+                <div className="w-22 h-22 rounded-full bg-Arambo-White border-2 border-Arambo-Border flex items-center justify-center p-2">
+                  <Image
+                    src="/Logo.svg"
+                    alt="Arambo Logo"
+                    className="w-full h-full object-contain"
+                    width={80}
+                    height={80}
+                  />
+                </div>
                 <div>
                   <h4 className="font-semibold h4 text-Arambo-Black mb-2">
-                    {property.name || "Property Owner"}
+                    Arambo
                   </h4>
-                  <p className="text-base font-medium text-Arambo-Text">
-                    Real Broker, LLC | ⭐ 5.0
-                  </p>
                 </div>
               </div>
 
@@ -288,15 +287,12 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
                 <p className="text-sm text-Arambo-Text leading-relaxed">
                   Hello from Arambo! Thanks for viewing this property. If you feel
                   like this property is what you need or you have a similar
-                  interest, feel free to contact me.
+                  interest, feel free to contact us.
                 </p>
               </div>
 
               {/* Actions */}
               <div className="flex flex-col sm:flex-row gap-3 mt-auto">
-                <button className="bg-Arambo-Accent text-white max-w-[172px] px-4 py-3 rounded-md font-medium transition">
-                  Book a Free Visit
-                </button>
                 <button className="bg-Arambo-Background flex justify-center items-center flex-1 text-gray-800 px-4 py-3 rounded-md font-medium transition">
                   Contact
                 </button>
