@@ -14,16 +14,16 @@ export default function EstimateHistory({ property }: EstimateHistoryProps) {
     if (!property.propertyValueHistory || property.propertyValueHistory.length === 0) {
       // Fallback data if no property value history is available
       return [
-        { period: "2022", value: 45, label: "2022" },
-        { period: "2023", value: 48, label: "2023" },
-        { period: "2024", value: 52, label: "2024" },
-        { period: "2025", value: 55, label: "2025" },
+        { period: "2022", value: 45000000, label: "2022" },
+        { period: "2023", value: 48000000, label: "2023" },
+        { period: "2024", value: 52000000, label: "2024" },
+        { period: "2025", value: 55000000, label: "2025" },
       ];
     }
     
     return property.propertyValueHistory.map(item => ({
       period: item.year.toString(),
-      value: Math.round(item.value / 1000000), // Convert to millions
+      value: item.value, // Use raw values
       label: item.year.toString()
     })).sort((a, b) => parseInt(a.period) - parseInt(b.period));
   }, [property.propertyValueHistory]);
@@ -42,7 +42,7 @@ export default function EstimateHistory({ property }: EstimateHistoryProps) {
     
     return property.propertyValueHistory.map(item => ({
       year: item.year.toString(),
-      value: `৳${(item.value / 1000000).toFixed(1)}M`
+      value: `৳${item.value.toLocaleString()}`
     })).sort((a, b) => parseInt(a.year) - parseInt(b.year));
   }, [property.propertyValueHistory]);
 
@@ -154,8 +154,7 @@ export default function EstimateHistory({ property }: EstimateHistoryProps) {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: "#6B7280" }}
-                  domain={[0, 75]}
-                  tickFormatter={(value) => `${value}M`}
+                  tickFormatter={(value) => value.toLocaleString()}
                 />
                 <Bar
                   dataKey="value"
