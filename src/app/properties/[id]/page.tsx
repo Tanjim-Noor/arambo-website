@@ -11,6 +11,7 @@ import PropertySingleSwiperAPI from "@/components/PropertySingleSwiperAPI";
 import PropertyDetailsCard from "@/components/PropertyDetailsContent";
 import { PropertyCard } from "@/components/PropertyCard";
 import EstimateHistory from '@/components/EstimateHistory';
+import { MapViewer } from '@/components/MapViewer';
 
 interface PropertyDetailsContentProps {
   propertyId: string;
@@ -243,18 +244,7 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
                   View on maps
                 </button>
               </div>
-              <div className="rounded-lg overflow-hidden border border-gray-200">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3956.0875236505557!2d112.6158192147785!3d-7.983908594264203!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd6282fd3b3d0a3%3A0x304ac6b4e0db8c2!2sMalang%2C%20East%20Java%2C%20Indonesia!5e0!3m2!1sen!2sid!4v1692268899304!5m2!1sen!2sid"
-                  width="100%"
-                  height="300"
-                  className="sm:h-[380px]"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                ></iframe>
-              </div>
+              <MapViewer lat={23.75739595985969} lng={90.38688233316064} />
             </div>
 
             {/* Estimate History */}
@@ -263,7 +253,7 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
               <h4 className="mb-3 sm:mb-4 text-Arambo-Black h4">
                 Property Value History
               </h4>
-              <EstimateHistory />
+              <EstimateHistory property={property} />
             </div>
            
           </div>

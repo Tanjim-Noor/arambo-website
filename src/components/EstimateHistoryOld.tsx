@@ -1,97 +1,66 @@
 "use client";
-import { useState, useMemo } from "react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
-import { Property } from "@/types/property";
-import Image from "next/image";
 
-interface EstimateHistoryProps {
-  property: Property;
-}
+const chartData = [
+  { period: "5y", value: 15, label: "5y" },
+  { period: "3y", value: 25, label: "3y" },
+  { period: "1y", value: 35, label: "1y" },
+  { period: "6m", value: 45, label: "6m" },
+  { period: "1m", value: 50, label: "1m" },
+  { period: "current", value: 65, label: "Current" },
+];
 
-export default function EstimateHistory({ property }: EstimateHistoryProps) {
-  // Transform property value history for chart display
-  const chartData = useMemo(() => {
-    if (!property.propertyValueHistory || property.propertyValueHistory.length === 0) {
-      // Fallback data if no property value history is available
-      return [
-        { period: "2022", value: 45, label: "2022" },
-        { period: "2023", value: 48, label: "2023" },
-        { period: "2024", value: 52, label: "2024" },
-        { period: "2025", value: 55, label: "2025" },
-      ];
-    }
-    
-    return property.propertyValueHistory.map(item => ({
-      period: item.year.toString(),
-      value: Math.round(item.value / 1000000), // Convert to millions
-      label: item.year.toString()
-    })).sort((a, b) => parseInt(a.period) - parseInt(b.period));
-  }, [property.propertyValueHistory]);
+const monthlyEstimates = [
+  { month: "Q1", value: "৳52,000,000" },
+  { month: "Q2", value: "৳52,000,000" },
+  { month: "Q3", value: "৳52,000,000" },
+  { month: "Q4", value: "৳52,000,000" },
+];
 
-  // Transform property value history for yearly estimates display
-  const yearlyEstimates = useMemo(() => {
-    if (!property.propertyValueHistory || property.propertyValueHistory.length === 0) {
-      // Fallback data if no property value history is available
-      return [
-        { year: "2022", value: "৳45,000,000" },
-        { year: "2023", value: "৳48,000,000" },
-        { year: "2024", value: "৳52,000,000" },
-        { year: "2025", value: "৳55,000,000" },
-      ];
-    }
-    
-    return property.propertyValueHistory.map(item => ({
-      year: item.year.toString(),
-      value: `৳${(item.value / 1000000).toFixed(1)}M`
-    })).sort((a, b) => parseInt(a.year) - parseInt(b.year));
-  }, [property.propertyValueHistory]);
-
-  // Get available years for select dropdown
-  const availableYears = useMemo(() => {
-    if (!property.propertyValueHistory || property.propertyValueHistory.length === 0) {
-      return ["2022", "2023", "2024", "2025"];
-    }
-    
-    return property.propertyValueHistory
-      .map(item => item.year.toString())
-      .sort((a, b) => parseInt(b) - parseInt(a)); // Sort descending for dropdown
-  }, [property.propertyValueHistory]);
-
-  const [selected, setSelected] = useState(availableYears[0] || "2025");
+export default function EstimateHistoryOld() {
+  const [selected, setSelected] = useState("Jul 2025");
 
   return (
     <div className="mt-6 sm:mt-8 bg-Arambo-White rounded-xl">
       <div className="rounded-xl">
         {/* Header */}
         <div className="flex items-center py-3 sm:py-4 px-4 sm:px-6 border-b border-Arambo-Border justify-end">
-          <select 
-            value={selected}
-            onChange={(e) => setSelected(e.target.value)}
-            className="flex cursor-pointer items-center outline-none gap-2 bg-white px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm sm:text-base"
-          >
-            {availableYears.map(year => (
-              <option key={year} value={year} className="label-16">
-                {year}
-              </option>
-            ))}
+          <select className="flex cursor-pointer items-center outline-none gap-2 bg-white px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm sm:text-base">
+            <option value="Jul 2025" className="label-16">
+              Jul 2025
+            </option>
+            <option value="Aug 2025" className="label-16">
+              Aug 2025
+            </option>
+            <option value="Sep 2025" className="label-16">
+              Sep 2025
+            </option>
+            <option value="Oct 2025" className="label-16">
+              Oct 2025
+            </option>
+            <option value="Nov 2025" className="label-16">
+              Nov 2025
+            </option>
           </select>
         </div>
 
         <div className="flex flex-col lg:flex-row items-stretch justify-between p-2 sm:p-3 gap-4">
-          {/* Left Side - Yearly Estimates */}
+          {/* Left Side - Monthly Estimates */}
           <div className="flex  flex-col px-3 sm:px-5 pt-3 sm:pt-5 rounded-xl min-w-[285px] pb-2 bg-Arambo-Background mb-4 lg:mb-0">
             <p className="text-sm sm:text-base text-center font-medium mb-3 sm:mb-5">
-              Property value by year:
+              Home value:
             </p>
 
             <div className="flex flex-col">
-              {yearlyEstimates.map((estimate, index) => (
+              {monthlyEstimates.map((estimate, index) => (
                 <div
                   key={index}
                   className="flex items-center justify-between py-2 sm:py-3 border-b border-Arambo-Border"
                 >
                   <span className="text-gray-900 font-medium text-sm sm:text-base">
-                    {estimate.year}
+                    {estimate.month}
                   </span>
                   <span className="text-Arambo-Accent font-semibold text-sm sm:text-base">
                     {estimate.value}
@@ -103,11 +72,9 @@ export default function EstimateHistory({ property }: EstimateHistoryProps) {
             {/* Navigation */}
             <div className="flex items-center mt-auto justify-center px-2 sm:px-3 py-3 sm:py-4 rounded-lg gap-3 sm:gap-4 bg-Arambo-White mb-4">
               <button className="p-1.5 sm:p-2 hover:bg-gray-200 rounded-full transition-colors">
-                <Image
+                <img
                   src="/property-single/arrowleft.svg"
-                  alt="Previous"
-                  width={20}
-                  height={20}
+                  alt=""
                   className="w-4 h-4 sm:w-5 sm:h-5"
                 />
               </button>
@@ -126,11 +93,9 @@ export default function EstimateHistory({ property }: EstimateHistoryProps) {
                 </button>
               </div>
               <button className="p-1.5 sm:p-2 hover:bg-gray-200 rounded-full transition-colors">
-                <Image
+                <img
                   src="/property-single/arrowright.svg"
-                  alt="Next"
-                  width={20}
-                  height={20}
+                  alt=""
                   className="w-4 h-4 sm:w-5 sm:h-5"
                 />
               </button>

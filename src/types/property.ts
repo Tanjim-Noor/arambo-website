@@ -89,6 +89,9 @@ export interface Property {
 
   coverImage?: string;           // Cover image URL
   otherImages?: string[];        // Additional image URLs
+  
+  // Property value history for estimate tracking
+  propertyValueHistory?: { year: number; value: number; }[];
 }
 
 // Property form data for creating/updating properties
