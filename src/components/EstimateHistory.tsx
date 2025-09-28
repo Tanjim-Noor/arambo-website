@@ -1,50 +1,63 @@
 "use client";
-import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useMemo } from "react";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts";
+import { Property } from "@/types/property";
 
-const chartData = [
-  { period: "2020", value: 45, label: "2020" },
-  { period: "2021", value: 48, label: "2021" },
-  { period: "2022", value: 52, label: "2022" },
-  { period: "2023", value: 55, label: "2023" },
-  { period: "2024", value: 60, label: "2024" },
-  { period: "2025", value: 65, label: "2025" },
-];
+interface EstimateHistoryProps {
+  property: Property;
+}
 
-const yearlyEstimates = [
-  { year: "2022", value: "৳52,000,000" },
-  { year: "2023", value: "৳55,000,000" },
-  { year: "2024", value: "৳60,000,000" },
-  { year: "2025", value: "৳65,000,000" },
-];
+export default function EstimateHistory({ property }: EstimateHistoryProps) {
+  // Transform property value history for chart display
+  const chartData = useMemo(() => {
+    if (!property.propertyValueHistory || property.propertyValueHistory.length === 0) {
+      return [];
+    }
+    
+    return property.propertyValueHistory.map(item => ({
+      period: item.year.toString(),
+      value: item.value, // Use raw values
+      label: item.year.toString()
+    })).sort((a, b) => parseInt(a.period) - parseInt(b.period));
+  }, [property.propertyValueHistory]);
 
-export default function EstimateHistory() {
-  const [selected, setSelected] = useState("2025");
+  // Transform property value history for yearly estimates display
+  const yearlyEstimates = useMemo(() => {
+    if (!property.propertyValueHistory || property.propertyValueHistory.length === 0) {
+      return [];
+    }
+    
+    return property.propertyValueHistory.map(item => ({
+      year: item.year.toString(),
+      value: `৳${item.value.toLocaleString()}`
+    })).sort((a, b) => parseInt(a.year) - parseInt(b.year));
+  }, [property.propertyValueHistory]);
+
+
+
+  // TODO: Remove these comments and implement the no-data UI later
+  // const hasData = property.propertyValueHistory && property.propertyValueHistory.length > 0;
 
   return (
     <div className="mt-6 sm:mt-8 bg-Arambo-White rounded-xl">
       <div className="rounded-xl">
-        {/* Header */}
-        <div className="flex items-center py-3 sm:py-4 px-4 sm:px-6 border-b border-Arambo-Border justify-end">
-          <select className="flex cursor-pointer items-center outline-none gap-2 bg-white px-3 sm:px-4 py-2 rounded-lg transition-colors text-sm sm:text-base">
-            <option value="2025" className="label-16">
-              2025
-            </option>
-            <option value="2024" className="label-16">
-              2024
-            </option>
-            <option value="2023" className="label-16">
-              2023
-            </option>
-            <option value="2022" className="label-16">
-              2022
-            </option>
-            <option value="2021" className="label-16">
-              2021
-            </option>
-          </select>
-        </div>
+        {/* TODO: Uncomment this section when ready to implement no-data state
+        {!hasData ? (
+          <div className="flex items-center justify-center py-16 sm:py-20">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Property Value History Available</h3>
+              <p className="text-gray-600 text-sm sm:text-base max-w-md mx-auto">
+                Property value history data is not available for this property at the moment.
+              </p>
+            </div>
+          </div>
+        ) : (
+        */}
 
         <div className="flex flex-col lg:flex-row items-stretch justify-between p-2 sm:p-3 gap-4">
           {/* Left Side - Yearly Estimates */}
@@ -69,37 +82,7 @@ export default function EstimateHistory() {
               ))}
             </div>
 
-            {/* Navigation */}
-            <div className="flex items-center mt-auto justify-center px-2 sm:px-3 py-3 sm:py-4 rounded-lg gap-3 sm:gap-4 bg-Arambo-White mb-4">
-              <button className="p-1.5 sm:p-2 hover:bg-gray-200 rounded-full transition-colors">
-                <img
-                  src="/property-single/arrowleft.svg"
-                  alt=""
-                  className="w-4 h-4 sm:w-5 sm:h-5"
-                />
-              </button>
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <button className="text-xs sm:text-sm text-Arambo-Text">
-                  22
-                </button>
-                <button className="text-xs font-bold text-white bg-Arambo-Accent p-1 rounded-sm">
-                  23
-                </button>
-                <button className="text-xs sm:text-sm text-Arambo-Text">
-                  24
-                </button>
-                <button className="text-xs sm:text-sm text-Arambo-Text">
-                  25
-                </button>
-              </div>
-              <button className="p-1.5 sm:p-2 hover:bg-gray-200 rounded-full transition-colors">
-                <img
-                  src="/property-single/arrowright.svg"
-                  alt=""
-                  className="w-4 h-4 sm:w-5 sm:h-5"
-                />
-              </button>
-            </div>
+
           </div>
 
           {/* Right Side - Bar Chart */}
@@ -119,8 +102,7 @@ export default function EstimateHistory() {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: "#6B7280" }}
-                  domain={[0, 75]}
-                  tickFormatter={(value) => `${value}M`}
+                  tickFormatter={(value) => value.toLocaleString()}
                 />
                 <Bar
                   dataKey="value"
@@ -132,6 +114,10 @@ export default function EstimateHistory() {
             </ResponsiveContainer>
           </div>
         </div>
+        
+        {/* TODO: Uncomment this closing bracket when implementing no-data state
+        )}
+        */}
       </div>
     </div>
   );

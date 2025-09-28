@@ -1,4 +1,5 @@
 import EstimateHistory from "@/components/EstimateHistory";
+import EstimateHistoryOld from "@/components/EstimateHistoryOld";
 import NeighbourhoodAmenities from "@/components/NeighbourhoodAmenities";
 import { PropertyCard } from "@/components/PropertyCard";
 import PropertyDetailsCard from "@/components/PropertyDetailsContent";
@@ -213,7 +214,7 @@ const PropertySinglePage = () => (
             <h4 className="mb-3 sm:mb-4 text-Arambo-Black h4">
               Estimate History
             </h4>
-            <EstimateHistory />
+            <EstimateHistoryOld />
           </div>
 
           {/* Valuation Factor */}
