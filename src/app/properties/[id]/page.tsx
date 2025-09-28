@@ -244,7 +244,7 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
                   View on maps
                 </button>
               </div>
-              <MapViewer lat={23.75739595985969} lng={90.38688233316064} />
+              <MapViewer lat={property.latitude} lng={property.longitude} />
             </div>
 
             {/* Estimate History */}

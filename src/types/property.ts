@@ -90,6 +90,10 @@ export interface Property {
   coverImage?: string;           // Cover image URL
   otherImages?: string[];        // Additional image URLs
   
+  // GPS coordinates for map integration
+  longitude?: number;            // Property longitude (-180 to 180)
+  latitude?: number;             // Property latitude (-90 to 90)
+  
   // Property value history for estimate tracking
   propertyValueHistory?: { year: number; value: number; }[];
 }
@@ -146,6 +150,10 @@ export interface PropertyFormData {
 
   coverImage?: string;
   otherImages?: string[];
+  
+  // GPS coordinates
+  longitude?: number;
+  latitude?: number;
 }
 
 // Property API payload interface - what the backend actually expects
@@ -199,6 +207,10 @@ export interface PropertyAPIPayload {
 
   coverImage?: string;
   otherImages?: string[];
+  
+  // GPS coordinates
+  longitude?: number;
+  latitude?: number;
 }
 
 // Pagination information
@@ -246,6 +258,14 @@ export interface PropertyFilters {
   isConfirmed?: boolean;
   apartmentType?: string;
   listingType?: string;
+  
+  // GPS coordinate filters
+  longitude?: number;
+  latitude?: number;
+  minLongitude?: number;
+  maxLongitude?: number;
+  minLatitude?: number;
+  maxLatitude?: number;
 }
 
 // Property statistics response
