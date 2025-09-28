@@ -1,6 +1,6 @@
 "use client";
 
-import { useProperty } from '@/hooks/useProperties';
+import { useProperty, usePropertySearch } from '@/hooks/useProperties';
 import { PropertyDetailsSkeleton } from '@/components/ui/LoadingComponents';
 import { ErrorMessage, NotFoundError } from '@/components/ui/ErrorComponents';
 import { Property } from '@/types/property';
@@ -9,13 +9,129 @@ import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import PropertySingleSwiperAPI from "@/components/PropertySingleSwiperAPI";
 import PropertyDetailsCard from "@/components/PropertyDetailsContent";
-import { PropertyCard } from "@/components/PropertyCard";
+import { PropertyCard } from "@/components/PropertyCardSimple";
 import EstimateHistory from '@/components/EstimateHistory';
 import { MapViewer } from '@/components/MapViewer';
 
 interface PropertyDetailsContentProps {
   propertyId: string;
 }
+
+// Similar Properties Component
+interface SimilarPropertiesProps {
+  currentProperty: Property;
+}
+
+const SimilarProperties = ({ currentProperty }: SimilarPropertiesProps) => {
+  // Determine the property category, defaulting to 'Residential' if not available
+  const propertyCategory = currentProperty.propertyCategory || 'Residential';
+  
+  // Create filters for similar properties
+  const similarFilters = {
+    propertyCategory,
+    limit: 3,
+    page: 1,
+  };
+
+  const { properties: similarProperties, isLoading, error } = usePropertySearch(similarFilters);
+
+  // Filter out the current property from similar properties
+  const filteredProperties = similarProperties.filter(property => property.id !== currentProperty.id);
+  
+  // Take only first 3 properties
+  const displayProperties = filteredProperties.slice(0, 3);
+
+  // Determine the route based on property category
+  const exploreRoute = propertyCategory === 'Commercial' ? '/commercial' : '/residential';
+
+  if (isLoading) {
+    return (
+      <section className="mt-12 sm:mt-16 lg:mt-20 py-16 sm:py-20 lg:py-28 bg-Arambo-White">
+        <div className="max-w-[1222px] mx-auto px-3 sm:px-4 lg:px-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+            <h2 className="h2">View Similar Properties</h2>
+            <Link
+              href={exploreRoute}
+              className="py-3 sm:py-4 px-6 sm:px-10 bg-Arambo-Accent text-white rounded-lg text-sm sm:text-base"
+            >
+              Explore Properties
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 mt-8 sm:mt-10 lg:mt-12 gap-4 sm:gap-6">
+            {[1, 2, 3].map((index) => (
+              <div key={index} className="bg-white rounded-lg shadow-sm border border-gray-200 animate-pulse">
+                <div className="w-full h-[302px] bg-gray-200 rounded-t-lg"></div>
+                <div className="p-4 space-y-3">
+                  <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-16 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="mt-12 sm:mt-16 lg:mt-20 py-16 sm:py-20 lg:py-28 bg-Arambo-White">
+        <div className="max-w-[1222px] mx-auto px-3 sm:px-4 lg:px-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+            <h2 className="h2">View Similar Properties</h2>
+            <Link
+              href={exploreRoute}
+              className="py-3 sm:py-4 px-6 sm:px-10 bg-Arambo-Accent text-white rounded-lg text-sm sm:text-base"
+            >
+              Explore Properties
+            </Link>
+          </div>
+          <div className="mt-8 sm:mt-10 lg:mt-12 text-center text-gray-500">
+            <p>Unable to load similar properties at the moment.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="mt-12 sm:mt-16 lg:mt-20 py-16 sm:py-20 lg:py-28 bg-Arambo-White">
+      <div className="max-w-[1222px] mx-auto px-3 sm:px-4 lg:px-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+          <h2 className="h2">View Similar Properties</h2>
+          <Link
+            href={exploreRoute}
+            className="py-3 sm:py-4 px-6 sm:px-10 bg-Arambo-Accent text-white rounded-lg text-sm sm:text-base"
+          >
+            Explore Properties
+          </Link>
+        </div>
+        
+        {displayProperties.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 mt-8 sm:mt-10 lg:mt-12 gap-4 sm:gap-6">
+            {displayProperties.map((property) => (
+              <PropertyCard
+                key={property.id}
+                property={property}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-8 sm:mt-10 lg:mt-12 text-center">
+            <p className="text-gray-500 mb-4">No similar properties found at the moment.</p>
+            <Link
+              href={exploreRoute}
+              className="inline-block py-3 px-6 bg-Arambo-Accent text-white rounded-lg text-sm"
+            >
+              Browse All Properties
+            </Link>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
 
 const PropertyDetailsContent = ({ propertyId }: PropertyDetailsContentProps) => {
   const { property, error, isLoading } = useProperty(propertyId);
@@ -303,38 +419,7 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
       </section>
 
       {/* Similar Properties */}
-      <section className="mt-12 sm:mt-16 lg:mt-20 py-16 sm:py-20  lg:py-28 bg-Arambo-White">
-        <div className="max-w-[1222px] mx-auto px-3 sm:px-4 lg:px-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
-            <h2 className="h2">View Similar Properties</h2>
-            <Link
-              href={"/residential"}
-              className="py-3 sm:py-4 px-6 sm:px-10 bg-Arambo-Accent text-white rounded-lg text-sm sm:text-base"
-            >
-              Explore Properties
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 mt-8 sm:mt-10 lg:mt-12 gap-4 sm:gap-6">
-            {Array.from({ length: 3 }, (_, index) => (
-              <PropertyCard
-                key={index}
-                property={{
-                  id: index + 1,
-                  image: `/commercial/commercial-house.png`,
-                  price: `৳${(index + 1) * 10000000}`,
-                  type: "Apartment",
-                  location: `Gulshan ${index + 1}, Dhaka`,
-                  beds: 4,
-                  baths: 3,
-                  sqft: 2370,
-                  isVerified: true,
-                  forSale: true,
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+      <SimilarProperties currentProperty={property} />
     </>
   );
 };
