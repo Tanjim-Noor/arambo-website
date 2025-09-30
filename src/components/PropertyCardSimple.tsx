@@ -46,6 +46,19 @@ export function PropertyCard({ property }: PropertyCardProps) {
           alt={property.propertyName}
           className="w-full group-hover:scale-105 transition-all aspect-[396/302] object-cover"
         />
+
+        {property.isVerified && (
+          <div className="absolute bottom-0 left-0 right-0">
+            <div className="bg-[#1946BB] text-white font-medium px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm flex items-center justify-start gap-1 sm:gap-1.5">
+              <img
+                src={"/commercial/verified.svg"}
+                alt="Verified"
+                className="w-3 h-3 sm:w-4 sm:h-4"
+              />
+              <span className="text-xs sm:text-sm">Verified By Arambo</span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="p-3 sm:p-4">

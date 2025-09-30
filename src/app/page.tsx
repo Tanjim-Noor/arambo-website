@@ -6,7 +6,7 @@ import {
 import Link from "next/link";
 import BannerCards from "@/components/homepageComponents/BannerCards";
 import AutoScrollCarousel from "@/components/homepageComponents/AutoScrollCarousel";
-import Toggle from "@/components/homepageComponents/Toggle";
+import ToggleWithAPI from "@/components/homepageComponents/ToggleWithAPI";
 import CarouselCard from "@/components/homepageComponents/CarouselCard";
 import NewsCarousel from "@/components/homepageComponents/NewsCarousel";
 import SelectUserType from "@/components/homepageComponents/SelectUserType";
@@ -175,7 +175,7 @@ const page = () => {
         <SelectUserType />
       </section>
       <section className="py-12 md:py-24 flex justify-center bg-Arambo-White">
-        <Toggle />
+        <ToggleWithAPI />
       </section>
       <section className="px-3 py-12 md:py-24 flex justify-center">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-[1200px] items-center px-2 md:px-0">

@@ -53,6 +53,7 @@ export interface Property {
   firstOwner: boolean;            // Is first owner
   lift: boolean;                  // Has elevator
   isConfirmed: boolean;           // Property listing confirmed
+  isVerified: boolean;           // Property verified by Arambo
   paperworkUpdated: boolean;      // Paperwork status
   onLoan: boolean;               // Property on loan
 
