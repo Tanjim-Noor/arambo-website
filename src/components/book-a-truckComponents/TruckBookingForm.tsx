@@ -1,10 +1,22 @@
 "use client";
 
-import React, { useState, FormEvent } from "react";
+import React, { useState, FormEvent, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { tripService } from "@/lib/api";
 import { CreateTripPayload, ProductType, TimeSlot } from "@/types/trip";
 
 const TruckForm = () => {
+  const searchParams = useSearchParams();
+  const [selectedTruckId, setSelectedTruckId] = useState<string | null>(null);
+
+  // Extract truck ID from URL parameters
+  useEffect(() => {
+    const truckId = searchParams.get('truckId');
+    if (truckId) {
+      setSelectedTruckId(truckId);
+      console.log('Selected truck ID:', truckId);
+    }
+  }, [searchParams]);
   const [name, setName] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -50,9 +62,11 @@ const TruckForm = () => {
         preferredDate,
         preferredTimeSlot: preferredTimeSlot as TimeSlot,
         additionalNotes: additionalNotes.trim() || undefined,
+        truckId: selectedTruckId || undefined,  // Include the selected truck ID
       };
 
       console.log('Submitting trip data:', tripData);
+      console.log('Selected truck ID:', selectedTruckId);
       console.log('JSON payload:', JSON.stringify(tripData, null, 2));
 
       // Submit to API

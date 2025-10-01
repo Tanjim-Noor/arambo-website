@@ -1,3 +1,5 @@
+"use client"
+
 import React from "react";
 import TruckBookingForm from "@/components/book-a-truckComponents/TruckBookingForm";
 

@@ -92,28 +92,27 @@ const BookAtruck = () => {
           </div>
         </div>
       ) : (
-        <a href="/book-a-truck/form">
-          <div className="flex flex-col items-center">
-            {trucks.length > 0 ? (
-              trucks.map((truck: Truck) => {
-                const formattedTruck = formatTruckForCard(truck);
-                return (
+        <div className="flex flex-col items-center">
+          {trucks.length > 0 ? (
+            trucks.map((truck: Truck) => {
+              const formattedTruck = formatTruckForCard(truck);
+              return (
+                <a key={formattedTruck.id} href={`/book-a-truck/form?truckId=${truck.id}`}>
                   <TruckCard
-                    key={formattedTruck.id}
                     title={formattedTruck.title}
                     imageSrc={formattedTruck.imageSrc}
                     details={formattedTruck.details}
                   />
-                );
-              })
-            ) : (
-              <div className="text-center p-8 text-gray-600">
-                <p>No trucks available at the moment.</p>
-                <p className="text-sm mt-2">Please check back later.</p>
-              </div>
-            )}
-          </div>
-        </a>
+                </a>
+              );
+            })
+          ) : (
+            <div className="text-center p-8 text-gray-600">
+              <p>No trucks available at the moment.</p>
+              <p className="text-sm mt-2">Please check back later.</p>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

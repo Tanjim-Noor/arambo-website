@@ -11,8 +11,8 @@ const navigation = [
     name: "Residential",
     href: "/residential",
     dropdown: [
-      { name: "Buy", href: "/residential/buy" },
-      { name: "Rent", href: "/residential/rent" },
+      { name: "Buy", href: "/residential" },
+      { name: "Rent", href: "/residential" },
       { name: "For Woman", href: "/residential" },
       { name: "For Bachelor", href: "/residential" },
       { name: "For Family", href: "/residential" },
@@ -22,9 +22,9 @@ const navigation = [
     name: "Commercial",
     href: "/commercial",
     dropdown: [
-      { name: "Sell", href: "/list-property" },
-      { name: "Buy", href: "/commercial/buy" },
-      { name: "Rent", href: "/commercial/rent" },
+      { name: "Sell", href: "/commercial" },
+      { name: "Buy", href: "/commercial" },
+      { name: "Rent", href: "/commercial" },
       { name: "Furnished", href: "/commercial" },
       { name: "Non-Furnished", href: "/commercial" },
     ],
