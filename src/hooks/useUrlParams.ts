@@ -92,16 +92,16 @@ export function useUrlParams(categoryType: 'tenantType' | 'furnishingStatus' = '
     const listingType = searchParams.get('listingType');
     if (listingType) params.listingType = listingType;
     
-    // Handle multiple tenantType values
-    const tenantTypes = searchParams.getAll('tenantType');
-    if (tenantTypes.length === 1) {
-      params.tenantType = tenantTypes[0] as PropertyFilters['tenantType'];
+    // Handle single tenantType value
+    const tenantType = searchParams.get('tenantType');
+    if (tenantType) {
+      params.tenantType = tenantType as PropertyFilters['tenantType'];
     }
     
-    // Handle multiple furnishingStatus values
-    const furnishingStatuses = searchParams.getAll('furnishingStatus');
-    if (furnishingStatuses.length === 1) {
-      params.furnishingStatus = furnishingStatuses[0] as PropertyFilters['furnishingStatus'];
+    // Handle single furnishingStatus value
+    const furnishingStatus = searchParams.get('furnishingStatus');
+    if (furnishingStatus) {
+      params.furnishingStatus = furnishingStatus as PropertyFilters['furnishingStatus'];
     }
     
     return params;
@@ -180,9 +180,10 @@ export function useUrlParams(categoryType: 'tenantType' | 'furnishingStatus' = '
     router.replace(`${pathname}${query}`);
   }, [pathname, router, searchParams]);
 
-  // Handle category values based on categoryType (tenantType or furnishingStatus)
+  // Handle category values based on categoryType (tenantType or furnishingStatus) - single selection only
   const categoryValues = useMemo(() => {
-    return searchParams.getAll(categoryType);
+    const singleValue = searchParams.get(categoryType);
+    return singleValue ? [singleValue] : [];
   }, [searchParams, categoryType]);
 
   const updateCategoryValues = useCallback((values: string[]) => {
@@ -191,10 +192,11 @@ export function useUrlParams(categoryType: 'tenantType' | 'furnishingStatus' = '
     // Remove all existing category params
     current.delete(categoryType);
     
-    // Add new category params
-    values.forEach(value => {
-      current.append(categoryType, value);
-    });
+    // Add single category param if values array has exactly one item
+    if (values.length === 1) {
+      current.set(categoryType, values[0]);
+    }
+    // If values array is empty, the param remains deleted (no category selected)
     
     const search = current.toString();
     const query = search ? `?${search}` : '';

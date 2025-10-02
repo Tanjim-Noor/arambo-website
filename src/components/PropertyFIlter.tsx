@@ -172,25 +172,24 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange, categoryType 
     }
   };
 
-  // Handle category toggle with URL params
+  // Handle category toggle with URL params (single selection only)
   const handleCategoryToggle = (category: string) => {
     const isSelected = localForm.categories.includes(category);
-    const newCategories = isSelected
-      ? localForm.categories.filter((c: string) => c !== category)
-      : [...localForm.categories, category];
+    // For single selection: if clicking the same category, deselect it; otherwise select the new one
+    const newCategories = isSelected ? [] : [category];
     
     setLocalForm((prev) => ({
       ...prev,
       categories: newCategories,
     }));
     
-    // Update URL with new category values (generic for both tenantType and furnishingStatus)
+    // Update URL with new category values (single value or empty array)
     updateCategoryValues(newCategories);
     
     // Create a complete filter object for the callback
     const categoryFilters: Partial<PropertyFilters> = {};
     
-    // Set the appropriate filter based on categoryType
+    // Set the appropriate filter based on categoryType (single value or undefined)
     if (categoryType === 'tenantType') {
       categoryFilters.tenantType = newCategories.length === 1 ? newCategories[0] as PropertyFilters['tenantType'] : undefined;
     } else if (categoryType === 'furnishingStatus') {
