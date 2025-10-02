@@ -363,14 +363,18 @@ const PropertyDetailsView = ({ property }: PropertyDetailsViewProps) => {
               <MapViewer lat={property.latitude} lng={property.longitude} />
             </div>
 
-            {/* Estimate History */}
-            
-            <div>
-              <h4 className="mb-3 sm:mb-4 text-Arambo-Black h4">
-                Property Value History
-              </h4>
-              <EstimateHistory property={property} />
-            </div>
+            {property.propertyValueHistory && property.propertyValueHistory.length > 0 && (
+              <>
+                {/* Estimate History */}
+                
+                <div>
+                  <h4 className="mb-3 sm:mb-4 text-Arambo-Black h4">
+                    Property Value History
+                  </h4>
+                  <EstimateHistory property={property} />
+                </div>
+              </>
+            )}
            
           </div>
 
