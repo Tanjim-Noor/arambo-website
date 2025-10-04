@@ -21,7 +21,7 @@ const getPropertyLink = (property: Property): string => {
 
 export function PropertyCard({ property }: PropertyCardProps) {
   // Extract properties
-  const image = property.coverImage || "/placeholder.svg?height=302&width=396&query=modern apartment interior";
+  const image = property.coverImage || "/building.png";
   
   const price = formatPrice(property.rent || 0);
   
