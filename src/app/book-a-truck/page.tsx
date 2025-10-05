@@ -16,7 +16,9 @@ const BookAtruck = () => {
       try {
         setLoading(true);
         const fetchedTrucks = await truckService.getTrucks();
-        setTrucks(fetchedTrucks);
+        // Filter to show only available trucks (isOpen: true)
+        const availableTrucks = fetchedTrucks.filter((truck: Truck) => truck.isOpen);
+        setTrucks(availableTrucks);
         setError(null);
       } catch (err: any) {
         console.error('Failed to fetch trucks:', err);
@@ -38,7 +40,9 @@ const BookAtruck = () => {
     const fetchTrucks = async () => {
       try {
         const fetchedTrucks = await truckService.getTrucks();
-        setTrucks(fetchedTrucks);
+        // Filter to show only available trucks (isOpen: true)
+        const availableTrucks = fetchedTrucks.filter((truck: Truck) => truck.isOpen);
+        setTrucks(availableTrucks);
         setError(null);
       } catch (err: any) {
         console.error('Failed to fetch trucks:', err);
@@ -108,8 +112,8 @@ const BookAtruck = () => {
             })
           ) : (
             <div className="text-center p-8 text-gray-600">
-              <p>No trucks available at the moment.</p>
-              <p className="text-sm mt-2">Please check back later.</p>
+              <p>No trucks are currently available for booking.</p>
+              <p className="text-sm mt-2">Please check back later or contact us for availability updates.</p>
             </div>
           )}
         </div>
