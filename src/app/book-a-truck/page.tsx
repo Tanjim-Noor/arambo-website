@@ -18,9 +18,9 @@ const BookAtruck = () => {
         const fetchedTrucks = await truckService.getTrucks();
         setTrucks(fetchedTrucks);
         setError(null);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to fetch trucks:', err);
-        const errorMessage = err?.response?.data?.error || err?.message || 'Failed to load trucks. Please try again later.';
+        const errorMessage = (err as Error)?.message || 'Failed to load trucks. Please try again later.';
         setError(errorMessage);
         setTrucks([]);
       } finally {
@@ -40,9 +40,9 @@ const BookAtruck = () => {
         const fetchedTrucks = await truckService.getTrucks();
         setTrucks(fetchedTrucks);
         setError(null);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to fetch trucks:', err);
-        const errorMessage = err?.response?.data?.error || err?.message || 'Failed to load trucks. Please try again later.';
+        const errorMessage = (err as Error)?.message || 'Failed to load trucks. Please try again later.';
         setError(errorMessage);
         setTrucks([]);
       } finally {

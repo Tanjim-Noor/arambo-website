@@ -77,9 +77,9 @@ const Form = () => {
                 paymentType: formData.paymentType,
                 furnitureCondition: formData.furnitureCondition
             })
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error("Error submitting furniture request:", err)
-            const errorMessage = err.response?.data?.message || "Something went wrong. Please try again."
+            const errorMessage = (err as Error)?.message || "Something went wrong. Please try again."
             alert(errorMessage)
         } finally {
             setIsLoading(false)
@@ -90,7 +90,7 @@ const Form = () => {
         <form onSubmit={handleSubmit} className='w-full mx-auto max-w-3xl space-y-12 bg-Arambo-White rounded-[20px] px-8 pt-12 pb-8'>
             <div className="space-y-4 text-left">
                 <h2 className="h2">Fill in this form</h2>
-                <p className="text-Arambo-Text">Complete your furniture request and we'll get back to you soon.</p>
+                <p className="text-Arambo-Text">Complete your furniture request and we&apos;ll get back to you soon.</p>
             </div>
 
 
