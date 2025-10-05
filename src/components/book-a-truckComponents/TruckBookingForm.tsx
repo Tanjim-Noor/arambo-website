@@ -88,12 +88,11 @@ const TruckForm = () => {
       setPreferredTimeSlot("");
       setAdditionalNotes("");
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to submit trip:', error);
       
       // Extract error message from API response
-      const errorMessage = error?.response?.data?.error || 
-                          error?.message || 
+      const errorMessage = (error as Error)?.message || 
                           'Failed to submit your booking. Please try again.';
       
       setSubmitError(errorMessage);

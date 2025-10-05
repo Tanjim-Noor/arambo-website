@@ -243,7 +243,7 @@ export const swrKeys = {
 // Error handling utilities
 export const handleApiError = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
-    const axiosError = error as AxiosError<any>;
+    const axiosError = error as AxiosError<{ error?: string; details?: unknown; message?: string }>;
     
     // Handle your backend's error format
     if (axiosError.response?.data?.error) {
@@ -254,7 +254,9 @@ export const handleApiError = (error: unknown): string => {
     if (axiosError.response?.data?.details) {
       if (Array.isArray(axiosError.response.data.details)) {
         return axiosError.response.data.details
-          .map((detail: any) => detail.message || detail)
+          .map((detail: { message?: string } | string) => 
+            typeof detail === 'object' && detail?.message ? detail.message : String(detail)
+          )
           .join(', ');
       }
       return String(axiosError.response.data.details);
@@ -319,7 +321,7 @@ export const furnitureService = {
     try {
       // Clean the data - remove empty strings and undefined values
       const cleanData = Object.fromEntries(
-        Object.entries(furnitureData).filter(([_, value]) => 
+        Object.entries(furnitureData).filter(([, value]) => 
           value !== undefined && value !== null && value !== ''
         )
       );
@@ -336,10 +338,12 @@ export const furnitureService = {
       }
       
       throw new Error('Invalid response from server');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating furniture request:', error);
-      console.error('Error response:', error.response?.data);
-      console.error('Error status:', error.response?.status);
+      if (axios.isAxiosError(error)) {
+        console.error('Error response:', error.response?.data);
+        console.error('Error status:', error.response?.status);
+      }
       throw new Error(handleApiError(error));
     }
   },
@@ -369,7 +373,7 @@ export const furnitureService = {
     try {
       // Clean the data - remove empty strings and undefined values
       const cleanData = Object.fromEntries(
-        Object.entries(updateData).filter(([_, value]) => 
+        Object.entries(updateData).filter(([, value]) => 
           value !== undefined && value !== null && value !== ''
         )
       );

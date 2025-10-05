@@ -144,7 +144,7 @@ const ResidentialPage = () => {
               setFilters({
                 page: 1,
                 limit: 10,
-                propertyCategory: 'residential'
+                propertyCategory: 'Residential'
               });
             }}
           />

@@ -20,9 +20,9 @@ const BookAtruck = () => {
         const availableTrucks = fetchedTrucks.filter((truck: Truck) => truck.isOpen);
         setTrucks(availableTrucks);
         setError(null);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to fetch trucks:', err);
-        const errorMessage = err?.response?.data?.error || err?.message || 'Failed to load trucks. Please try again later.';
+        const errorMessage = (err as Error)?.message || 'Failed to load trucks. Please try again later.';
         setError(errorMessage);
         setTrucks([]);
       } finally {
@@ -44,9 +44,9 @@ const BookAtruck = () => {
         const availableTrucks = fetchedTrucks.filter((truck: Truck) => truck.isOpen);
         setTrucks(availableTrucks);
         setError(null);
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Failed to fetch trucks:', err);
-        const errorMessage = err?.response?.data?.error || err?.message || 'Failed to load trucks. Please try again later.';
+        const errorMessage = (err as Error)?.message || 'Failed to load trucks. Please try again later.';
         setError(errorMessage);
         setTrucks([]);
       } finally {

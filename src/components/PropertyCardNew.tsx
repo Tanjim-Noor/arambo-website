@@ -67,7 +67,7 @@ export function PropertyCard({ property }: PropertyCardProps) {
     : property.isVerified;
   
   const forSale = isNewProperty(property) 
-    ? property.category === 'sale' 
+    ? property.category === 'Sale' 
     : property.forSale;
 
   return (
