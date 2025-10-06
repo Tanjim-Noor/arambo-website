@@ -172,28 +172,34 @@ export function PropertyFilter({ CategoryOptions, onFiltersChange, categoryType 
     }
   };
 
-  // Handle category toggle with URL params (single selection only)
+  // Handle category toggle with URL params (multi-select support)
   const handleCategoryToggle = (category: string) => {
     const isSelected = localForm.categories.includes(category);
-    // For single selection: if clicking the same category, deselect it; otherwise select the new one
-    const newCategories = isSelected ? [] : [category];
+    // For multi-select: if clicking a selected category, remove it; otherwise add it
+    const newCategories = isSelected 
+      ? localForm.categories.filter(c => c !== category)
+      : [...localForm.categories, category];
     
     setLocalForm((prev) => ({
       ...prev,
       categories: newCategories,
     }));
     
-    // Update URL with new category values (single value or empty array)
+    // Update URL with new category values (multiple values supported)
     updateCategoryValues(newCategories);
     
     // Create a complete filter object for the callback
     const categoryFilters: Partial<PropertyFilters> = {};
     
-    // Set the appropriate filter based on categoryType (single value or undefined)
+    // Set the appropriate filter based on categoryType (array or undefined)
     if (categoryType === 'tenantType') {
-      categoryFilters.tenantType = newCategories.length === 1 ? newCategories[0] as PropertyFilters['tenantType'] : undefined;
+      categoryFilters.tenantType = newCategories.length > 0 ? 
+        (newCategories.length === 1 ? newCategories[0] as PropertyFilters['tenantType'] : newCategories as PropertyFilters['tenantType']) : 
+        undefined;
     } else if (categoryType === 'furnishingStatus') {
-      categoryFilters.furnishingStatus = newCategories.length === 1 ? newCategories[0] as PropertyFilters['furnishingStatus'] : undefined;
+      categoryFilters.furnishingStatus = newCategories.length > 0 ? 
+        (newCategories.length === 1 ? newCategories[0] as PropertyFilters['furnishingStatus'] : newCategories as PropertyFilters['furnishingStatus']) : 
+        undefined;
     }
     
     // Include all current filter values to ensure complete state

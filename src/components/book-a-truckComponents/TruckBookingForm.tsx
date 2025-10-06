@@ -65,9 +65,9 @@ const TruckForm = () => {
         truckId: selectedTruckId || undefined,  // Include the selected truck ID
       };
 
-      console.log('Submitting trip data:', tripData);
-      console.log('Selected truck ID:', selectedTruckId);
-      console.log('JSON payload:', JSON.stringify(tripData, null, 2));
+      // console.log('Submitting trip data:', tripData);
+      // console.log('Selected truck ID:', selectedTruckId);
+      // console.log('JSON payload:', JSON.stringify(tripData, null, 2));
 
       // Submit to API
       const createdTrip = await tripService.createTrip(tripData);

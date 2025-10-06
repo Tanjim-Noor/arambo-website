@@ -32,10 +32,10 @@ const ResidentialPage = () => {
     loadMore 
   } = useProperties(filters);
   
-  console.log("Properties:", properties);
+  // console.log("Properties:", properties);
   console.log("Error:", error);
-  console.log("Filters:", filters);
-  console.log("Current URL Filters:", currentFilters);
+  // console.log("Filters:", filters);
+  // console.log("Current URL Filters:", currentFilters);
   
   const loaderRef = useRef<HTMLDivElement | null>(null);
 
@@ -185,6 +185,12 @@ const ResidentialPage = () => {
                         propertyCategory: 'Commercial'
                       });
                       setHeroSearchValue("");
+                      // Clear URL parameters as well
+                      updateFilters({
+                        page: 1,
+                        limit: 10,
+                        propertyCategory: 'Commercial'
+                      }, true);
                     }}
                   />
                 )}

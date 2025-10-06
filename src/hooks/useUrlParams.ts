@@ -92,16 +92,16 @@ export function useUrlParams(categoryType: 'tenantType' | 'furnishingStatus' = '
     const listingType = searchParams.get('listingType');
     if (listingType) params.listingType = listingType;
     
-    // Handle single tenantType value
-    const tenantType = searchParams.get('tenantType');
-    if (tenantType) {
-      params.tenantType = tenantType as PropertyFilters['tenantType'];
+    // Handle multiple tenantType values
+    const tenantTypes = searchParams.getAll('tenantType');
+    if (tenantTypes.length > 0) {
+      params.tenantType = tenantTypes.length === 1 ? tenantTypes[0] as PropertyFilters['tenantType'] : tenantTypes as PropertyFilters['tenantType'];
     }
     
-    // Handle single furnishingStatus value
-    const furnishingStatus = searchParams.get('furnishingStatus');
-    if (furnishingStatus) {
-      params.furnishingStatus = furnishingStatus as PropertyFilters['furnishingStatus'];
+    // Handle multiple furnishingStatus values
+    const furnishingStatuses = searchParams.getAll('furnishingStatus');
+    if (furnishingStatuses.length > 0) {
+      params.furnishingStatus = furnishingStatuses.length === 1 ? furnishingStatuses[0] as PropertyFilters['furnishingStatus'] : furnishingStatuses as PropertyFilters['furnishingStatus'];
     }
     
     return params;
@@ -180,10 +180,9 @@ export function useUrlParams(categoryType: 'tenantType' | 'furnishingStatus' = '
     router.replace(`${pathname}${query}`);
   }, [pathname, router, searchParams]);
 
-  // Handle category values based on categoryType (tenantType or furnishingStatus) - single selection only
+  // Handle category values based on categoryType (tenantType or furnishingStatus) - multi-select support
   const categoryValues = useMemo(() => {
-    const singleValue = searchParams.get(categoryType);
-    return singleValue ? [singleValue] : [];
+    return searchParams.getAll(categoryType);
   }, [searchParams, categoryType]);
 
   const updateCategoryValues = useCallback((values: string[]) => {
@@ -192,11 +191,10 @@ export function useUrlParams(categoryType: 'tenantType' | 'furnishingStatus' = '
     // Remove all existing category params
     current.delete(categoryType);
     
-    // Add single category param if values array has exactly one item
-    if (values.length === 1) {
-      current.set(categoryType, values[0]);
-    }
-    // If values array is empty, the param remains deleted (no category selected)
+    // Add multiple category params for multi-select support
+    values.forEach(value => {
+      current.append(categoryType, value);
+    });
     
     const search = current.toString();
     const query = search ? `?${search}` : '';

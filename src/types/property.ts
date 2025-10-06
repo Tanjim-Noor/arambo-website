@@ -23,7 +23,7 @@ export type InventoryStatus =
   | 'Leased' 
   | 'Unavailable';
 
-export type TenantType = 'Family' | 'Bachelor' | 'Office' | 'Commercial' | 'Any';
+export type TenantType = 'Family' | 'Bachelor' | 'Women' | 'Office' | 'Commercial' | 'Any';
 
 export type PropertyCategory = 'Residential' | 'Commercial';
 
@@ -248,9 +248,9 @@ export interface PropertyFilters {
   firstOwner?: boolean;
   onLoan?: boolean;
   inventoryStatus?: InventoryStatus;
-  tenantType?: TenantType;
+  tenantType?: TenantType | TenantType[];  // Support both single value and array for multi-select
   propertyCategory?: PropertyCategory;
-  furnishingStatus?: FurnishingStatus;
+  furnishingStatus?: FurnishingStatus | FurnishingStatus[];  // Support both single value and array for multi-select
   minRent?: number;
   maxRent?: number;
   floor?: number;
