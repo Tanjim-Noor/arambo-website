@@ -85,7 +85,16 @@ export const buildQueryString = (filters: PropertyFilters): string => {
   
   Object.entries(filters).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
-      params.append(key, value.toString());
+      if (Array.isArray(value)) {
+        // Handle array values for multi-select support (e.g., tenantType=Women&tenantType=Family)
+        value.forEach(v => {
+          if (v !== undefined && v !== null && v !== '') {
+            params.append(key, v.toString());
+          }
+        });
+      } else {
+        params.append(key, value.toString());
+      }
     }
   });
   
@@ -330,7 +339,7 @@ export const furnitureService = {
       
       const response = await apiClient.post('/furniture', cleanData);
       
-      console.log('Backend response:', response.data);
+      // console.log('Backend response:', response.data);
       
       // Your backend returns the furniture object directly
       if (response.data && (response.data._id || response.data.id)) {
